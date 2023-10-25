@@ -1,25 +1,25 @@
 package config
 
 import (
-	"github.com/bsn-eng/mev-plus/cmd/utils"
+	"github.com/pon-pbs/mev-plus/cmd/utils"
 	cli "github.com/urfave/cli/v2"
 )
 
 const ModuleName = "builderApi"
 
-func NewCommand() (*cli.Command) {
+func NewCommand() *cli.Command {
 
 	return &cli.Command{
-		Name: ModuleName,
-		Usage: "Start the Builder API",
+		Name:      ModuleName,
+		Usage:     "Start the Builder API",
 		UsageText: "The Builder API is a service that provides a REST API to build blocks",
-		Category: utils.BuilderAPICategory,
-		Flags: builderApiFlags(),
+		Category:  utils.BuilderAPICategory,
+		Flags:     builderApiFlags(),
 	}
 }
 
 func builderApiFlags() []cli.Flag {
-	return[]cli.Flag{
+	return []cli.Flag{
 		LoggerLevelFlag,
 		LoggerFormatFlag,
 		ListenAddressFlag,

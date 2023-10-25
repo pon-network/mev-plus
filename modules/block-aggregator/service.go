@@ -7,10 +7,10 @@ import (
 	"sync"
 
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/bsn-eng/mev-plus/common"
-	coreCommon "github.com/bsn-eng/mev-plus/core/common"
-	"github.com/bsn-eng/mev-plus/modules/block-aggregator/config"
-	"github.com/bsn-eng/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-pbs/mev-plus/common"
+	coreCommon "github.com/pon-pbs/mev-plus/core/common"
+	"github.com/pon-pbs/mev-plus/modules/block-aggregator/config"
+	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 	params "github.com/ethereum/go-ethereum/params"
@@ -110,7 +110,7 @@ func (b *BlockAggregatorService) ConnectBlockSource(moduleName string) error {
 
 	// check for the existence of the module by calling the module_name method
 	var moduleNameCheck string
-	err := b.coreClient.Call(&moduleNameCheck, moduleName+"_name", false)
+	err := b.coreClient.Call(&moduleNameCheck, moduleName+"_name", false, nil)
 	if err != nil {
 		b.log.WithError(err).WithField("module", moduleName).Warn("Error calling module")
 		return err

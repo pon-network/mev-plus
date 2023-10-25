@@ -1,7 +1,7 @@
 package main
 
 import (
-	core "github.com/bsn-eng/mev-plus/cmd/core"
+	core "github.com/pon-pbs/mev-plus/cmd/core"
 )
 
 func main() {

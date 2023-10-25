@@ -7,14 +7,14 @@ import (
 
 	apiv1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/bsn-eng/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 )
 
 // This is used by builder api to check the status of any block producers or relays
 func (b *BlockAggregatorService) checkBlockSources() error {
-	
+
 	var err error
 	var wg sync.WaitGroup
 	var sourcesUp []string
@@ -23,7 +23,7 @@ func (b *BlockAggregatorService) checkBlockSources() error {
 
 	handleStatusCheck := func(module string) {
 
-		err := b.coreClient.Call(nil, module+"_status", false)
+		err := b.coreClient.Call(nil, module+"_status", false, nil)
 		mu.Lock()
 		defer mu.Unlock()
 		if err != nil {
@@ -62,10 +62,10 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	var successfulRegistrations []string
 
 	handleRegistration := func(module string) {
-		
+
 		defer wg.Done()
 
-		err := b.coreClient.Call(nil, module+"_registerValidator", false, payload)
+		err := b.coreClient.Call(nil, module+"_registerValidator", true, b.ConnectedBLockSources, payload)
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			mu.Lock()
@@ -91,7 +91,6 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	return nil
 }
 
-
 func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, proposerPubkey string) (data.SlotHeader, error) {
 
 	slotTime := b.cfg.GenesisTime + (slot * b.cfg.SlotDuration)
@@ -115,7 +114,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		defer wg.Done()
 
 		var result []spec.VersionedSignedBuilderBid
-		err := b.coreClient.Call(&result, module+"_getHeader", true, slot, parentHash, proposerPubkey)
+		err := b.coreClient.Call(&result, module+"_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			return
@@ -170,7 +169,7 @@ func (b *BlockAggregatorService) processPayloadReq(VersionedSignedBlindedBeaconB
 		return versionedExecutionPayload, slotHeader, err
 	}
 	var result []commonTypes.VersionedExecutionPayloadWithVersionName
-	err = b.coreClient.Call(&result, slotHeader.ModuleName+"_getPayload", true, &VersionedSignedBlindedBeaconBlock)
+	err = b.coreClient.Call(&result, slotHeader.ModuleName+"_getPayload", true, b.ConnectedBLockSources, &VersionedSignedBlindedBeaconBlock)
 	if err != nil {
 		return versionedExecutionPayload, slotHeader, err
 	}

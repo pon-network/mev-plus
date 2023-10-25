@@ -1,6 +1,6 @@
 package config
 
-import "github.com/bsn-eng/mev-plus/common"
+import "github.com/pon-pbs/mev-plus/common"
 
 type CoreConfig struct {
 	ModuleFlags map[string]common.ModuleFlags

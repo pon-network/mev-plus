@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/bsn-eng/mev-plus/common"
-	coreCommon "github.com/bsn-eng/mev-plus/core/common"
-	"github.com/bsn-eng/mev-plus/core/config"
-	moduleList "github.com/bsn-eng/mev-plus/moduleList"
+	"github.com/pon-pbs/mev-plus/common"
+	coreCommon "github.com/pon-pbs/mev-plus/core/common"
+	"github.com/pon-pbs/mev-plus/core/config"
+	moduleList "github.com/pon-pbs/mev-plus/moduleList"
 
-	blockaggregator "github.com/bsn-eng/mev-plus/modules/block-aggregator"
-	builderapi "github.com/bsn-eng/mev-plus/modules/builder-api"
-	"github.com/bsn-eng/mev-plus/modules/relay"
+	blockaggregator "github.com/pon-pbs/mev-plus/modules/block-aggregator"
+	builderapi "github.com/pon-pbs/mev-plus/modules/builder-api"
+	"github.com/pon-pbs/mev-plus/modules/relay"
 
 	cli "github.com/urfave/cli/v2"
 
@@ -83,7 +83,6 @@ func (c *CoreService) defaultServices() ([]coreCommon.Service, error) {
 		builderapi.NewBuilderApiService(),
 		blockaggregator.NewBlockAggregatorService(),
 		relay.NewRelayService(),
-
 	}
 
 	return serviceList, nil
@@ -179,7 +178,6 @@ func (c *CoreService) Configure(coreConfig config.CoreConfig) error {
 
 }
 
-
 func (c *CoreService) Start() error {
 
 	c.startStopLock.Lock()
@@ -217,7 +215,6 @@ func (c *CoreService) Start() error {
 
 	return nil
 }
-
 
 func (c *CoreService) Close() error {
 	c.startStopLock.Lock()
@@ -303,7 +300,7 @@ func (c *CoreService) RelayComms() {
 						// All communication relays would be stopped when core is closed
 						return
 					case msg := <-channels.Outgoing:
-						
+
 						var targettedModule string
 						if msg.IsResponse() {
 							targettedModule = msg.Origin
@@ -326,30 +323,30 @@ func (c *CoreService) RelayComms() {
 							if msg.IsCall() {
 
 								errResponse := coreCommon.JsonRPCMessage{
-									Version:          msg.Version,
-									ID: 			 msg.ID,
-									Method:           msg.Method + common.ResponseMethodSuffix,
-									NotifyAll: 	  false,
+									Version:   msg.Version,
+									ID:        msg.ID,
+									Method:    msg.Method + common.ResponseMethodSuffix,
+									NotifyAll: false,
 								}
 
 								errResponse = *errResponse.ErrorResponse(fmt.Errorf("targetted module [%s] not found", targettedModule))
 
 								channels.Incoming <- errResponse
 							}
-							
+
 						} else {
 							targettedModuleChannels.Incoming <- msg
 						}
 
 						if msg.NotifyAll {
 							msgCopy := coreCommon.JsonRPCMessage{
-								Version:          msg.Version,
-								ID:               nil, // notifications cannot have an ID
-								Method:           msg.Method,
-								Params:           msg.Params,
-								Error:            msg.Error,
-								Result:           msg.Result,
-								NotifyAll:        msg.NotifyAll,
+								Version:   msg.Version,
+								ID:        nil, // notifications cannot have an ID
+								Method:    msg.Method,
+								Params:    msg.Params,
+								Error:     msg.Error,
+								Result:    msg.Result,
+								NotifyAll: msg.NotifyAll,
 							}
 							// if notify all, then the message sent to the rest of the modules
 							// cannot require a response
@@ -358,6 +355,15 @@ func (c *CoreService) RelayComms() {
 								if otherModule == module || otherModule == targettedModule {
 									continue
 								}
+								// check if the module is in the notify exclusion list
+								if msg.NotifyExclusion != nil {
+									for _, exclusion := range msg.NotifyExclusion {
+										if exclusion == otherModule {
+											continue
+										}
+									}
+								}
+
 								otherModuleChannels, ok := c.moduleChannels[otherModule]
 								if !ok {
 									continue

@@ -3,7 +3,7 @@ package common
 import (
 	"encoding/json"
 
-	"github.com/bsn-eng/mev-plus/common"
+	"github.com/pon-pbs/mev-plus/common"
 )
 
 // Service represents a service that can handle events.
@@ -18,17 +18,17 @@ type Service interface {
 
 // Should not be accessible over communication channels
 var ParkedCallbacks map[string]bool = map[string]bool{
-	"start": true,
-	"stop": true,
+	"start":       true,
+	"stop":        true,
 	"connectCore": true,
-	"configure": true,
+	"configure":   true,
 }
 
 type Module struct {
-	Name          string
-	Service       Service
-	ServiceAlive  bool
-	Callbacks     map[string]*Callback
+	Name         string
+	Service      Service
+	ServiceAlive bool
+	Callbacks    map[string]*Callback
 }
 
 type ModuleCommChannels struct {
@@ -37,10 +37,10 @@ type ModuleCommChannels struct {
 }
 
 type requestOp struct {
-	id         json.RawMessage
+	id          json.RawMessage
 	err         error
 	resp        chan *JsonRPCMessage // the response goes here
-	hadResponse bool                   // true when the request was responded to
+	hadResponse bool                 // true when the request was responded to
 }
 
 type readOp struct {

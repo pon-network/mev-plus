@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bsn-eng/mev-plus/common"
+	"github.com/pon-pbs/mev-plus/common"
 )
 
-
 type JsonRPCMessage struct {
-	Version          string          `json:"jsonrpc,omitempty"`
-	ID               json.RawMessage `json:"id,omitempty"`
-	Method           string          `json:"method,omitempty"`
-	Params           json.RawMessage `json:"params,omitempty"`
-	Error            *jsonError      `json:"error,omitempty"`
-	Result           json.RawMessage `json:"result,omitempty"`
-	NotifyAll        bool            `json:"notifyAll"`
-	Origin 		 string          `json:"origin,omitempty"`
+	Version         string          `json:"jsonrpc,omitempty"`
+	ID              json.RawMessage `json:"id,omitempty"`
+	Method          string          `json:"method,omitempty"`
+	Params          json.RawMessage `json:"params,omitempty"`
+	Error           *jsonError      `json:"error,omitempty"`
+	Result          json.RawMessage `json:"result,omitempty"`
+	NotifyAll       bool            `json:"notifyAll"`
+	NotifyExclusion []string        `json:"notifyExclusion,omitempty"`
+	Origin          string          `json:"origin,omitempty"`
 }
 
 func (msg *JsonRPCMessage) IsNotification() bool {
@@ -80,7 +80,7 @@ func (msg *JsonRPCMessage) Response(result interface{}) *JsonRPCMessage {
 
 func ErrorMessage(err error) *JsonRPCMessage {
 	msg := &JsonRPCMessage{Version: common.Vsn, ID: null, Error: &jsonError{
-		Code:   common.RPCDefaultErrorCode,
+		Code:    common.RPCDefaultErrorCode,
 		Message: err.Error(),
 	}}
 	ec, ok := err.(common.Error)

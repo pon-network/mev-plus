@@ -6,7 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/bsn-eng/mev-plus/common"
+	"github.com/pon-pbs/mev-plus/common"
 )
 
 const (
@@ -14,9 +14,9 @@ const (
 )
 
 var (
-	ErrBadResult            = errors.New("bad result in JSON-RPC response")
-	ErrClientQuit           = errors.New("client is closed")
-	ErrNoResult             = errors.New("JSON-RPC response has no result")
+	ErrBadResult  = errors.New("bad result in JSON-RPC response")
+	ErrClientQuit = errors.New("client is closed")
+	ErrNoResult   = errors.New("JSON-RPC response has no result")
 )
 
 type Client struct {
@@ -63,14 +63,14 @@ func NewClient(
 ) (string, *Client, *commChannels, error) {
 
 	c := &Client{
-		id:         common.NewID(),
-		idgen:      common.NewID,
-		close:      make(chan struct{}),
-		closed:     make(chan struct{}),
-		readOp:     make(chan readOp),
-		reqInit:    make(chan *requestOp),
-		reqSent:    make(chan error, 1),
-		reqTimeout: make(chan *requestOp),
+		id:             common.NewID(),
+		idgen:          common.NewID,
+		close:          make(chan struct{}),
+		closed:         make(chan struct{}),
+		readOp:         make(chan readOp),
+		reqInit:        make(chan *requestOp),
+		reqSent:        make(chan error, 1),
+		reqTimeout:     make(chan *requestOp),
 		knownCallbacks: knownCallbacks,
 	}
 
@@ -91,7 +91,7 @@ func NewClient(
 }
 
 func (c *Client) Ping(message string) error {
-	err := c.Notify(context.Background(), "core_ping", false, message)
+	err := c.Notify(context.Background(), "core_ping", false, nil, message)
 	if err != nil {
 		return err
 	}

@@ -43,7 +43,7 @@ func (b *BuilderApiService) handleRoot(w http.ResponseWriter, _ *http.Request) {
 func (b *BuilderApiService) handleStatus(w http.ResponseWriter, _ *http.Request) {
 	// Get call.
 
-	err := b.coreClient.Call(nil, "blockAggregator_status", false)
+	err := b.coreClient.Call(nil, "blockAggregator_status", false, nil)
 	if err != nil {
 		b.respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -64,7 +64,7 @@ func (b *BuilderApiService) handleRegisterValidator(w http.ResponseWriter, req *
 		return
 	}
 
-	err = b.coreClient.Call(nil, "blockAggregator_registerValidator", false, payload)
+	err = b.coreClient.Call(nil, "blockAggregator_registerValidator", false, nil, payload)
 	if err != nil {
 		b.respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -97,7 +97,7 @@ func (b *BuilderApiService) handleGetHeader(w http.ResponseWriter, req *http.Req
 	}
 
 	result := []spec.VersionedSignedBuilderBid{}
-	err = b.coreClient.Call(&result, "blockAggregator_getHeader", false, slot, parentHash, pubkey)
+	err = b.coreClient.Call(&result, "blockAggregator_getHeader", false, nil, slot, parentHash, pubkey)
 	if err != nil {
 		b.respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -124,7 +124,7 @@ func (b *BuilderApiService) handleGetPayload(w http.ResponseWriter, req *http.Re
 	}
 
 	result := []commonTypes.VersionedExecutionPayloadWithVersionName{}
-	err := b.coreClient.Call(&result, "blockAggregator_getPayload", false, payload)
+	err := b.coreClient.Call(&result, "blockAggregator_getPayload", false, nil, payload)
 	if err != nil {
 		b.respondError(w, http.StatusInternalServerError, err.Error())
 		return

@@ -3,10 +3,10 @@ package common
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 	"fmt"
+	"strconv"
 
-	"github.com/bsn-eng/mev-plus/common"
+	"github.com/pon-pbs/mev-plus/common"
 )
 
 func ClientFromContext(ctx context.Context) (*Client, bool) {
@@ -19,11 +19,11 @@ func (c *Client) nextID() json.RawMessage {
 	return strconv.AppendUint(nil, uint64(id), 10)
 }
 
-func (c *Client) newMessage(method string, notifyAll bool, paramsIn ...interface{}) (*JsonRPCMessage, error) {
+func (c *Client) newMessage(method string, notifyAll bool, notificationExclusion []string, paramsIn ...interface{}) (*JsonRPCMessage, error) {
 	if _, ok := c.knownCallbacks[method]; !ok {
 		return nil, fmt.Errorf("unknown method: %s", method)
 	}
-	msg := &JsonRPCMessage{Version: common.Vsn, ID: c.nextID(), Method: method, NotifyAll: notifyAll}
+	msg := &JsonRPCMessage{Version: common.Vsn, ID: c.nextID(), Method: method, NotifyAll: notifyAll, NotifyExclusion: notificationExclusion}
 	if paramsIn != nil { // prevent sending "params":null
 		var err error
 		if msg.Params, err = json.Marshal(paramsIn); err != nil {

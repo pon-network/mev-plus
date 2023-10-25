@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/attestantio/go-eth2-client/spec/phase0"
-	commonType "github.com/bsn-eng/mev-plus/common"
-	coreCommon "github.com/bsn-eng/mev-plus/core/common"
-	"github.com/bsn-eng/mev-plus/modules/relay/common"
-	"github.com/bsn-eng/mev-plus/modules/relay/signing"
-	"github.com/bsn-eng/mev-plus/modules/relay/config"
 	"github.com/google/uuid"
+	commonType "github.com/pon-pbs/mev-plus/common"
+	coreCommon "github.com/pon-pbs/mev-plus/core/common"
+	"github.com/pon-pbs/mev-plus/modules/relay/common"
+	"github.com/pon-pbs/mev-plus/modules/relay/config"
+	"github.com/pon-pbs/mev-plus/modules/relay/signing"
 	"github.com/sirupsen/logrus"
 )
 
@@ -57,10 +57,10 @@ type RelayService struct {
 	relayMinBid         common.U256Str
 	genesisTime         uint64
 
-	httpClient           http.Client
-	requestMaxRetries    int
-	bids                 map[bidRespKey]bidResp // keeping track of bids, to log the originating relay on withholding
-	bidsLock             sync.Mutex
+	httpClient        http.Client
+	requestMaxRetries int
+	bids              map[bidRespKey]bidResp // keeping track of bids, to log the originating relay on withholding
+	bidsLock          sync.Mutex
 }
 
 func NewRelayService() *RelayService {
@@ -139,7 +139,7 @@ func (r *RelayService) Start() error {
 	}
 
 	ctx := context.Background()
-	err := r.coreClient.Notify(ctx, "blockAggregator_connectBlockSource", false, config.ModuleName)
+	err := r.coreClient.Notify(ctx, "blockAggregator_connectBlockSource", false, nil, config.ModuleName)
 	if err != nil {
 		return err
 	}

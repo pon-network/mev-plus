@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/pon-pbs/mev-plus/core/version"
 	"github.com/urfave/cli/v2"
-	"github.com/bsn-eng/mev-plus/core/version"
 )
 
 // NewApp creates a default MEV+ CLI app.

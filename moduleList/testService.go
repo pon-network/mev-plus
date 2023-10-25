@@ -3,8 +3,8 @@ package modulelist
 import (
 	"fmt"
 
-	"github.com/bsn-eng/mev-plus/common"
-	coreCommon "github.com/bsn-eng/mev-plus/core/common"
+	"github.com/pon-pbs/mev-plus/common"
+	coreCommon "github.com/pon-pbs/mev-plus/core/common"
 )
 
 const name = "TestService"

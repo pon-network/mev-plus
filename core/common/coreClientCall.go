@@ -12,9 +12,9 @@ import (
 //
 // The result must be a pointer so that package json can unmarshal into it. You
 // can also pass nil, in which case the result is ignored.
-func (c *Client) Call(result interface{}, method string, notifyAll bool, args ...interface{}) error {
+func (c *Client) Call(result interface{}, method string, notifyAll bool, notificationExclusion []string, args ...interface{}) error {
 	ctx := context.Background()
-	return c.CallContext(ctx, result, method, notifyAll, args...)
+	return c.CallContext(ctx, result, method, notifyAll, notificationExclusion, args...)
 }
 
 // CallContext performs a JSON-RPC call with the given arguments. If the context is
@@ -22,11 +22,16 @@ func (c *Client) Call(result interface{}, method string, notifyAll bool, args ..
 //
 // The result must be a pointer so that package json can unmarshal into it. You
 // can also pass nil, in which case the result is ignored.
-func (c *Client) CallContext(ctx context.Context, result interface{}, method string, notifyAll bool, args ...interface{}) error {
+func (c *Client) CallContext(ctx context.Context, result interface{}, method string, notifyAll bool, notificationExclusion []string, args ...interface{}) error {
 	if result != nil && reflect.TypeOf(result).Kind() != reflect.Ptr {
 		return fmt.Errorf("call result parameter must be pointer or nil interface: %v", result)
 	}
-	msg, err := c.newMessage(method, notifyAll, args...)
+
+	if !notifyAll {
+		notificationExclusion = nil
+	}
+
+	msg, err := c.newMessage(method, notifyAll, notificationExclusion, args...)
 	if err != nil {
 		return err
 	}
@@ -58,9 +63,13 @@ func (c *Client) CallContext(ctx context.Context, result interface{}, method str
 }
 
 // Notify sends a notification, i.e. a method call that doesn't expect a response.
-func (c *Client) Notify(ctx context.Context, method string, notifyAll bool, args ...interface{}) error {
+func (c *Client) Notify(ctx context.Context, method string, notifyAll bool, notificationExclusion []string, args ...interface{}) error {
+	// if notify all is false set notification exclusion to nil no matter what the user passed in
+	if !notifyAll {
+		notificationExclusion = nil
+	}
 	op := new(requestOp)
-	msg, err := c.newMessage(method, notifyAll, args...)
+	msg, err := c.newMessage(method, notifyAll, notificationExclusion, args...)
 	if err != nil {
 		return err
 	}

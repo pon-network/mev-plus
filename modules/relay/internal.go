@@ -20,6 +20,7 @@ func (r *RelayService) processRegistration(payload []apiv1.SignedValidatorRegist
 		"numRegistrations": len(payload),
 	})
 
+	var respErr error
 	relayRespCh := make(chan error, len(r.relays))
 
 	for _, relay := range r.relays {
@@ -37,12 +38,13 @@ func (r *RelayService) processRegistration(payload []apiv1.SignedValidatorRegist
 	}
 
 	for i := 0; i < len(r.relays); i++ {
-		respErr := <-relayRespCh
+		respErr = <-relayRespCh
 		if respErr == nil {
 			return nil
 		}
 	}
-	return nil
+
+	return respErr
 }
 
 func (r *RelayService) processGetHeader(slot uint64, parentHashHex, pubkey string) (bidResp, error) {

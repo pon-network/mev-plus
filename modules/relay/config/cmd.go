@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/bsn-eng/mev-plus/cmd/utils"
+	"github.com/pon-pbs/mev-plus/cmd/utils"
 	cli "github.com/urfave/cli/v2"
 )
 

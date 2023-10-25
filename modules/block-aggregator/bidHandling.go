@@ -1,13 +1,12 @@
 package blockaggregator
 
 import (
-
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/bsn-eng/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
 )
 
 func (b *BlockAggregatorService) processNewBid(name string, slot uint64, bid spec.VersionedSignedBuilderBid) error {
-	
+
 	value, err := bid.Value()
 	if err != nil {
 		return err
@@ -17,7 +16,7 @@ func (b *BlockAggregatorService) processNewBid(name string, slot uint64, bid spe
 	if err != nil {
 		return err
 	}
-	
+
 	processedHeader := data.SlotHeader{
 		ModuleName: name,
 		Slot:       slot,

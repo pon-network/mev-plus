@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bsn-eng/mev-plus/common"
-	coreCommon "github.com/bsn-eng/mev-plus/core/common"
-	"github.com/bsn-eng/mev-plus/modules/builder-api/config"
 	"github.com/gorilla/mux"
+	"github.com/pon-pbs/mev-plus/common"
+	coreCommon "github.com/pon-pbs/mev-plus/core/common"
+	"github.com/pon-pbs/mev-plus/modules/builder-api/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -132,7 +132,7 @@ func (b *BuilderApiService) Start() error {
 		Addr:    b.listenAddr,
 		Handler: b.getRouter(),
 
-		ReadTimeout:       time.Duration(b.cfg.ServerReadTimeoutMs ) * time.Millisecond,
+		ReadTimeout:       time.Duration(b.cfg.ServerReadTimeoutMs) * time.Millisecond,
 		ReadHeaderTimeout: time.Duration(b.cfg.ServerReadHeaderTimeoutMs) * time.Millisecond,
 		WriteTimeout:      time.Duration(b.cfg.ServerWriteTimeoutMs) * time.Millisecond,
 		IdleTimeout:       time.Duration(b.cfg.ServerIdleTimeoutMs) * time.Millisecond,
