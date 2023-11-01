@@ -1,0 +1,3 @@
+[submodule "k2-native-delegation"]
+    path = modules/k2-native-delegation
+    url = https://github.com/bsn-eng/k2-native-delegation
