@@ -15,9 +15,9 @@ import (
 	"time"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
-	commonType "github.com/pon-pbs/mev-plus/common"
-	relayCommon "github.com/pon-pbs/mev-plus/modules/relay/common"
-	"github.com/pon-pbs/mev-plus/modules/relay/config"
+	commonType "github.com/pon-network/mev-plus/common"
+	relayCommon "github.com/pon-network/mev-plus/modules/relay/common"
+	"github.com/pon-network/mev-plus/modules/relay/config"
 
 	"github.com/attestantio/go-builder-client/spec"
 
@@ -359,13 +359,14 @@ func ParseConfigFLags(r *RelayService, moduleFlags commonType.ModuleFlags) error
 			if err != nil {
 				return err
 			}
+			r.cfg.RequestTimeoutMs = int(requestTimeoutMs)
 			r.httpClient.Timeout = time.Duration(requestTimeoutMs) * time.Millisecond
 		case config.RequestMaxRetriesFlag.Name:
 			requestMaxRetries, err := strconv.ParseInt(flagValue, 10, 64)
 			if err != nil {
 				return err
 			}
-			r.requestMaxRetries = int(requestMaxRetries)
+			r.cfg.RequestMaxRetries = int(requestMaxRetries)
 		default:
 			return fmt.Errorf("invalid flag %s", flagName)
 		}

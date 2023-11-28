@@ -1,4 +1,4 @@
-module github.com/pon-pbs/mev-plus
+module github.com/pon-network/mev-plus
 
 go 1.20
 

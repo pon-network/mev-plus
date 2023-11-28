@@ -11,11 +11,11 @@ import (
 
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/google/uuid"
-	commonType "github.com/pon-pbs/mev-plus/common"
-	coreCommon "github.com/pon-pbs/mev-plus/core/common"
-	"github.com/pon-pbs/mev-plus/modules/relay/common"
-	"github.com/pon-pbs/mev-plus/modules/relay/config"
-	"github.com/pon-pbs/mev-plus/modules/relay/signing"
+	commonType "github.com/pon-network/mev-plus/common"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
+	"github.com/pon-network/mev-plus/modules/relay/common"
+	"github.com/pon-network/mev-plus/modules/relay/config"
+	"github.com/pon-network/mev-plus/modules/relay/signing"
 	"github.com/sirupsen/logrus"
 )
 
@@ -57,15 +57,14 @@ type RelayService struct {
 	relayMinBid         common.U256Str
 	genesisTime         uint64
 
-	httpClient        http.Client
-	requestMaxRetries int
-	bids              map[bidRespKey]bidResp // keeping track of bids, to log the originating relay on withholding
-	bidsLock          sync.Mutex
+	httpClient http.Client
+	bids       map[bidRespKey]bidResp // keeping track of bids, to log the originating relay on withholding
+	bidsLock   sync.Mutex
 }
 
 func NewRelayService() *RelayService {
 
-	log := logrus.NewEntry(logrus.New())
+	log := logrus.NewEntry(logrus.New()).WithField("moduleExecution", config.ModuleName)
 
 	return &RelayService{
 		log:                 log,
@@ -73,7 +72,6 @@ func NewRelayService() *RelayService {
 		cfg:                 config.RelayConfigDefaults,
 		relayCheck:          config.RelayConfigDefaults.RelayCheck,
 		relaySignatureCheck: config.RelayConfigDefaults.RelaySignatureCheck,
-		requestMaxRetries:   config.RelayConfigDefaults.RequestMaxRetries,
 		bids:                make(map[bidRespKey]bidResp),
 		httpClient:          http.Client{Timeout: time.Duration(config.RelayConfigDefaults.RequestTimeoutMs) * time.Millisecond},
 	}
@@ -125,24 +123,42 @@ func (r *RelayService) Configure(moduleFlags commonType.ModuleFlags) error {
 
 func (r *RelayService) Start() error {
 
-	r.log.Info("Starting Relay service")
-	r.log.Info("Relay check: ", r.relayCheck)
-	r.log.Info("Relay min bid: ", r.relayMinBid.BigInt().String())
-	r.log.Info("Configured relays: ", strings.Join(RelayEntriesToStrings(r.relays), ", "))
+	if len(r.relays) == 0 {
+		// No relays configured do not connect and start the service
+		return nil
+	}
 
+	var operationalRelays int
 	if r.relayCheck {
 		ok := r.checkRelays()
 		if ok <= 0 {
 			return fmt.Errorf("failed to connect to any relays")
 		}
-		r.log.Info("Connected to ", ok, " relays")
+		operationalRelays = ok
 	}
 
-	ctx := context.Background()
-	err := r.coreClient.Notify(ctx, "blockAggregator_connectBlockSource", false, nil, config.ModuleName)
+	var builderApiAddress string
+	err := r.coreClient.Call(&builderApiAddress, "builderApi_listenAddress", false, nil)
 	if err != nil {
 		return err
 	}
+
+	for _, relayEntry := range r.relays {
+		if relayEntry.URL.String() == builderApiAddress {
+			return fmt.Errorf("relay address %s is the same as the builder api address %s", relayEntry.URL.String(), builderApiAddress)
+		}
+	}
+
+	ctx := context.Background()
+	err = r.coreClient.Notify(ctx, "blockAggregator_connectBlockSource", false, nil, config.ModuleName)
+	if err != nil {
+		return err
+	}
+
+	r.log.Info("Started Relay service")
+	r.log.Info("Relay min bid: ", r.relayMinBid.BigInt().String())
+	r.log.Info("Configured relays: ", strings.Join(RelayEntriesToStrings(r.relays), ", "))
+	r.log.Infof("Using %d operational relays", operationalRelays)
 
 	return nil
 }

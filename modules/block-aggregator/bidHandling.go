@@ -2,7 +2,7 @@ package blockaggregator
 
 import (
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-network/mev-plus/modules/block-aggregator/data"
 )
 
 func (b *BlockAggregatorService) processNewBid(name string, slot uint64, bid spec.VersionedSignedBuilderBid) error {

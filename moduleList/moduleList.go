@@ -1,9 +1,11 @@
 package modulelist
 
 import (
-	"github.com/pon-pbs/mev-plus/common"
-	coreCommon "github.com/pon-pbs/mev-plus/core/common"
+	"github.com/pon-network/mev-plus/common"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
 	"github.com/urfave/cli/v2"
+
+	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
 )
 
 var ServiceList []coreCommon.Service
@@ -18,8 +20,7 @@ func init() {
 	///////////////////////////////////////////////////
 	ServiceList = []coreCommon.Service{
 
-		// Test service
-		// NewTestService(),
+		proxyModule.NewExternalValidatorProxyService(),
 	}
 	///////////////////////////////////////////////////
 
@@ -27,7 +28,8 @@ func init() {
 	// Import and append your command  here          //
 	///////////////////////////////////////////////////
 	commandList := []*cli.Command{
-		// NewTestCommand(),
+
+		proxyModule.NewCommand(),
 	}
 	////////////////////////////////////////////////
 

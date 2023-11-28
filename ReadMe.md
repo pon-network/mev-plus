@@ -6,10 +6,11 @@
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Build](#building-mev-plus)
-- [Workflow](#workflow)
+- [Workflow](#mev-plus-workflow-overview)
 - [Usage](#usage)
 - [Adding Custom Modules to MEV Plus](#adding-custom-modules-to-mev-plus)
-- [ActionMechanism](#auction-mechanism)
+- [Pre-packaged Modules](#pre-packaged-modules)
+- [Key Features enabled through Pre-packaged Modules](#key-features-enabled-through-pre-packaged-modules)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -28,7 +29,7 @@ Requires [Go 1.20+](https://go.dev/doc/install).
 Install the latest MEV-plus release with go install:
 
 ```shell
-go install github.com/pon-pbs/mev-plus@latest
+go install github.com/pon-network/mev-plus@latest
 go run mevplus.go --help
 ```
 
@@ -38,7 +39,7 @@ Before proceeding, make sure you have the latest release of MEV-Plus.
 
 ```shell
 # Clone the MEV-Plus repository, which includes ongoing merged PRs for future releases.
-git clone https://github.com/pon-pbs/mev-plus
+git clone https://github.com/pon-network/mev-plus
 cd mev-plus
 
 # Build the most recent version of MEV-Plus into a binary for your system
@@ -48,7 +49,7 @@ go build -o mevPlus mevPlus.go
 cp mevPlus /usr/local/bin
 
 # To ensure that MEV-Plus is ready to start and know what commands are available to run/configure MEV-Plus using the built binary:
-mevplus --help
+mevPlus --help
 
 # Alternatively, you may run mevPlus.go directly instead of building it into a binary. You can perform the same steps as above, but instead of running the binary, run the go file directly:
 go run mevPlus.go --help
@@ -65,7 +66,7 @@ At the core of MEV Plus lies the "Core" module, which acts as the central nervou
 
 ### Builder API: Orchestrating RPC Calls
 
-The Builder API module leverages the capabilities of Core to initiate RPC calls. These calls are directed towards the Block Aggregator module, facilitating communication and data exchange. Builder API is instrumental in handling requests and obtaining responses from the system.
+The Builder API module leverages the capabilities of Core to initiate RPC calls. These calls are directed towards the Block Aggregator module, facilitating communication and data exchange. Builder API is instrumental in handling requests and obtaining responses between MEV Plus and the connected Consensus Client.
 
 ### Block Aggregator: Your Gateway to Blocks
 
@@ -127,19 +128,30 @@ To ensure that your custom module can be seamlessly integrated into the MEV Plus
 
 - **Configure()**: The Configure function is responsible for setting up your module based on module-specific flags and configurations. It ensures that your module can be customized to suit different use cases and scenarios.
 
+### Installing Modules
+
+To install additional modules, import the module into your MEV Plus `moduleList.go` file and instantiate the module **SERVICE** and the module's CLI **COMMAND** functions in the respective service and command lists variables within the [moduleList.go](moduleList/moduleList.go) file.
+
+Build your modified MEV Plus binary and run it with the required flags.
+
 By adhering to these guidelines and incorporating these components into your custom module, you can extend MEV Plus's functionality according to your unique requirements while ensuring compatibility and consistency with the overall structure of the platform. This modularity allows developers to tailor MEV Plus to specific use cases, making it a flexible and adaptable solution for various applications.
 
-## Auction Mechanism
+## Pre-packaged Modules
 
-MEV Plus incorporates a dynamic auction mechanism to promote fairness and optimize block-building processes. This auction system operates as an ascending second price auction with a bounty bid, providing benefits such as enhanced transaction orderflow and revenue opportunities for validators.
+MEV Plus comes with a set of pre-packaged modules that can be used to enhance the platform's functionality. These modules are designed to be highly extensible, allowing developers to customize them to suit their specific needs. The following modules are currently available within MEV Plus:
 
-### Key Features
+- Builder API: [builder-api](modules/builder-api/)
+- Block Aggregator: [block-aggregator](modules/block-aggregator/)
+- External Validator Proxy: [external-validator-proxy](modules/external-validator-proxy/)
+- Relay: [relay](modules/relay/)
 
-- **Customizable Auction Window**: MEV Plus allows you to configure an auction time window, during which all requests for headers are paused. This feature can be tailored to your specific needs, with the option to set the window duration to zero for instantaneous requests.
+## Key Features enabled through Pre-packaged Modules
 
-- **Fairness and Competition**: The auction mechanism fosters healthy competition among block builders and proposers. It introduces a separation of roles where builders craft blocks that include transaction orderflow, and a bounty bid is awarded to the validator who proposes the block. This separation of responsibilities enhances decentralization and censorship resistance within the Ethereum ecosystem.
+- **Customizable Auction Window** (by means of [block-aggregator](modules/block-aggregator/)): MEV Plus allows you to configure an auction time window, during which all requests for headers are paused. This feature can be tailored to your specific needs, with the option to set the window duration to zero for instantaneous requests.
 
-This auction mechanism within MEV Plus adds a layer of efficiency and fairness to the block-building process, ensuring that participants are rewarded based on the value they provide to the network.
+- **Fairness and Competition** (by means of [block-aggregator](modules/block-aggregator/)): The auction mechanism fosters healthy competition among block builders and proposers. It introduces a separation of roles where builders craft blocks that include transaction orderflow, and a bounty bid is awarded to the validator who proposes the block. This separation of responsibilities enhances decentralization and censorship resistance within the Ethereum ecosystem.
+
+- **PBS Operations** (by means of [external-validator-proxy](modules/external-validator-proxy/) and/or [relay](modules/relay/) through [builder-api](modules/builder-api/)): MEV Plus allows you to perform PBS operations, including block building and relaying. These operations are facilitated through the Builder API module, which leverages the capabilities of the Relay module to communicate with external sources. Of such external sources is the option to use the [external-validator-proxy](modules/external-validator-proxy/) module to connect to an existing validator proxy software that is already connected/configured to a PBS pipeline. This would allow MEV Plus to act as a side car to the existing validator proxy software. All PBS requests are forwarded to and from the connected external validator address `-externalValidatorProxy.address`. This allows for the use of all MEV Plus features and modules while maintaining the existing PBS pipeline. This can also be run in conjunction with the [relay](modules/relay/) module to allow for the use of the MEV Plus relay functionality to aggregate block sources from both the connected external validator proxy software and the MEV Plus relay module.
 
 ## Contributing
 
@@ -153,4 +165,4 @@ We welcome contributions to MEV Plus. If you'd like to contribute, please follow
 
 ## License
 
-This project is licensed under the [License Name] - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under MIT - see the [LICENSE.md](LICENSE.md) file for details.

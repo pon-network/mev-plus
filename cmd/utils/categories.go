@@ -9,6 +9,7 @@ const (
 	BuilderAPICategory      = "BUILDER API"
 	RelayModuleCategory     = "Relay Module"
 	BlockAggregatorCategory = "Block Aggregator"
+	ExternalValidatorProxyCategory = "External Validator Proxy"
 )
 
 func init() {

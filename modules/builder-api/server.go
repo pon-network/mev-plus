@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/pon-pbs/mev-plus/common"
-	coreCommon "github.com/pon-pbs/mev-plus/core/common"
-	"github.com/pon-pbs/mev-plus/modules/builder-api/config"
+	"github.com/pon-network/mev-plus/common"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
+	"github.com/pon-network/mev-plus/modules/builder-api/config"
 	"github.com/sirupsen/logrus"
 )
 
 type BuilderApiService struct {
-	listenAddr string
 	log        *logrus.Entry
 	srv        *http.Server
 	coreClient *coreCommon.Client
@@ -25,14 +24,13 @@ type BuilderApiService struct {
 func NewBuilderApiService() *BuilderApiService {
 
 	b := &BuilderApiService{
-		listenAddr: config.BuilderApiConfigDefaults.ListenAddress,
-		log:        logrus.NewEntry(logrus.New()),
-		cfg:        config.BuilderApiConfigDefaults,
+		log: logrus.NewEntry(logrus.New()),
+		cfg: config.BuilderApiConfigDefaults,
 	}
 	return b
 }
 
-func (b *BuilderApiService) Configure(moduleFlags common.ModuleFlags) error {
+func (b *BuilderApiService) Configure(moduleFlags common.ModuleFlags) (err error) {
 
 	for flagName, flagValue := range moduleFlags {
 		switch flagName {
@@ -52,7 +50,10 @@ func (b *BuilderApiService) Configure(moduleFlags common.ModuleFlags) error {
 				return fmt.Errorf("invalid logger format %s", flagValue)
 			}
 		case config.ListenAddressFlag.Name:
-			b.listenAddr = flagValue
+			b.cfg.ListenAddress, err = createUrl(flagValue)
+			if err != nil {
+				return fmt.Errorf("-%s: invalid url %q", config.ListenAddressFlag.Name, flagValue)
+			}
 		case config.ServerReadHeaderTimeoutMsFlag.Name:
 			flagValint, err := strconv.Atoi(flagValue)
 			if err != nil {
@@ -129,7 +130,7 @@ func (b *BuilderApiService) Start() error {
 	}
 
 	b.srv = &http.Server{
-		Addr:    b.listenAddr,
+		Addr:    b.cfg.ListenAddress.Host,
 		Handler: b.getRouter(),
 
 		ReadTimeout:       time.Duration(b.cfg.ServerReadTimeoutMs) * time.Millisecond,
@@ -142,9 +143,13 @@ func (b *BuilderApiService) Start() error {
 
 	go b.srv.ListenAndServe()
 
-	b.log.WithField("listenAddr", b.listenAddr).Info("Started Builder API server")
+	b.log.WithField("listenAddr", b.cfg.ListenAddress.String()).Info("Started Builder API server")
 
 	return nil
+}
+
+func (b *BuilderApiService) ListenAddress() string {
+	return b.cfg.ListenAddress.String()
 }
 
 func (b *BuilderApiService) Stop() error {
@@ -158,8 +163,6 @@ func (b *BuilderApiService) Stop() error {
 	}
 
 	b.srv = nil
-
-	b.coreClient.Close()
 
 	return nil
 }

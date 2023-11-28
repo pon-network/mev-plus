@@ -7,10 +7,10 @@ import (
 	"sync"
 
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/pon-pbs/mev-plus/common"
-	coreCommon "github.com/pon-pbs/mev-plus/core/common"
-	"github.com/pon-pbs/mev-plus/modules/block-aggregator/config"
-	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-network/mev-plus/common"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
+	"github.com/pon-network/mev-plus/modules/block-aggregator/config"
+	"github.com/pon-network/mev-plus/modules/block-aggregator/data"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 	params "github.com/ethereum/go-ethereum/params"
@@ -138,7 +138,7 @@ func (b *BlockAggregatorService) RegisterValidator(payload []apiv1.SignedValidat
 	for _, reg := range payload {
 		proposers = append(proposers, reg.Message.Pubkey.String())
 	}
-	b.log.Infof("Processing %v validator registrations through block aggregator: %v", len(payload), proposers)
+	b.log.Infof("Processing %v validator registrations through block aggregator", len(payload))
 	return b.processValidatorRegistrations(payload)
 }
 

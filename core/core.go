@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/pon-pbs/mev-plus/common"
-	coreCommon "github.com/pon-pbs/mev-plus/core/common"
-	"github.com/pon-pbs/mev-plus/core/config"
-	moduleList "github.com/pon-pbs/mev-plus/moduleList"
+	"github.com/pon-network/mev-plus/common"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
+	"github.com/pon-network/mev-plus/core/config"
+	moduleList "github.com/pon-network/mev-plus/moduleList"
 
-	blockaggregator "github.com/pon-pbs/mev-plus/modules/block-aggregator"
-	builderapi "github.com/pon-pbs/mev-plus/modules/builder-api"
-	"github.com/pon-pbs/mev-plus/modules/relay"
+	blockaggregator "github.com/pon-network/mev-plus/modules/block-aggregator"
+	builderapi "github.com/pon-network/mev-plus/modules/builder-api"
+	"github.com/pon-network/mev-plus/modules/relay"
 
 	cli "github.com/urfave/cli/v2"
 
@@ -121,7 +121,7 @@ func (c *CoreService) Configure(coreConfig config.CoreConfig) error {
 		Outgoing: coreClientChannels.Outgoing,
 	}
 
-	log.Info("Set up Core Communication Client")
+	log.Info("Setting up Core Communication Client")
 
 	for _, module := range c.moduleRegistry.Modules() {
 
@@ -171,7 +171,7 @@ func (c *CoreService) Configure(coreConfig config.CoreConfig) error {
 
 		c.lock.Unlock()
 
-		log.Info("Connected module to core communication: ", module.Name)
+		log.Info("Discovered module for core communication: ", module.Name)
 	}
 
 	return nil

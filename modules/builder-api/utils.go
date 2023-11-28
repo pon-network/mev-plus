@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"runtime/debug"
 	"time"
+	"strings"
 
 	"github.com/attestantio/go-builder-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
@@ -62,6 +63,17 @@ var (
 	errInvalidTransaction = errors.New("invalid transaction")
 	errMaxRetriesExceeded = errors.New("max retries exceeded")
 )
+
+func createUrl(urlString string) (*url.URL, error) {
+	if urlString == "" {
+		return nil, nil
+	}
+	if !strings.HasPrefix(urlString, "http") {
+		urlString = "http://" + urlString
+	}
+
+	return url.ParseRequestURI(urlString)
+}
 
 // GetURI returns the full request URI with scheme, host, path and args.
 func GetURI(url *url.URL, path string) string {

@@ -124,7 +124,7 @@ func (r *RelayService) requestRelayPayload(relay RelayEntry, logger *logrus.Entr
 	logger.Debug("calling getPayload")
 
 	responsePayload := new(commonTypes.VersionedExecutionPayloadWithVersionName)
-	_, err := SendHTTPRequestWithRetries(requestCtx, r.httpClient, http.MethodPost, url, block, responsePayload, r.requestMaxRetries, logger)
+	_, err := SendHTTPRequestWithRetries(requestCtx, r.httpClient, http.MethodPost, url, block, responsePayload, r.cfg.RequestMaxRetries, logger)
 
 	if err != nil {
 		if errors.Is(requestCtx.Err(), context.Canceled) {

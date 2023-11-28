@@ -3,9 +3,9 @@ package config
 import (
 	"github.com/urfave/cli/v2"
 
-	aggregator "github.com/pon-pbs/mev-plus/modules/block-aggregator/config"
-	builderApi "github.com/pon-pbs/mev-plus/modules/builder-api/config"
-	relay "github.com/pon-pbs/mev-plus/modules/relay/config"
+	aggregator "github.com/pon-network/mev-plus/modules/block-aggregator/config"
+	builderApi "github.com/pon-network/mev-plus/modules/builder-api/config"
+	relay "github.com/pon-network/mev-plus/modules/relay/config"
 )
 
 // Core does not have any extra commands,

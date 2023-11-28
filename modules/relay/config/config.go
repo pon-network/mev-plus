@@ -1,6 +1,6 @@
 package config
 
-import "github.com/pon-pbs/mev-plus/modules/relay/common"
+import "github.com/pon-network/mev-plus/modules/relay/common"
 
 type RelayConfig struct {
 	LoggerLevel           string

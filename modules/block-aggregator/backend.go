@@ -1,13 +1,14 @@
 package blockaggregator
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
 
 	apiv1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/pon-pbs/mev-plus/modules/block-aggregator/data"
+	"github.com/pon-network/mev-plus/modules/block-aggregator/data"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 )
@@ -32,7 +33,7 @@ func (b *BlockAggregatorService) checkBlockSources() error {
 			return
 		}
 
-		b.log.WithField("module", module).Info("module is up")
+		b.log.WithField("module", module).Info("Module is up")
 		sourcesUp = append(sourcesUp, module)
 
 	}
@@ -61,11 +62,14 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	var errors []error
 	var successfulRegistrations []string
 
+	// Notify all modules of the new validator registrations
+	b.coreClient.Notify(context.Background(), "core_registerValidator", true, b.ConnectedBLockSources, payload)
+
 	handleRegistration := func(module string) {
 
 		defer wg.Done()
 
-		err := b.coreClient.Call(nil, module+"_registerValidator", true, b.ConnectedBLockSources, payload)
+		err := b.coreClient.Call(nil, module+"_registerValidator", false, b.ConnectedBLockSources, payload)
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			mu.Lock()
@@ -103,6 +107,9 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		time.Sleep(timeUntilDeadline)
 	}
 
+	// Notify all modules of the new slot header request
+	b.coreClient.Notify(context.Background(), "core_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
+
 	var wg sync.WaitGroup
 	type resultData struct {
 		module   string
@@ -114,7 +121,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		defer wg.Done()
 
 		var result []spec.VersionedSignedBuilderBid
-		err := b.coreClient.Call(&result, module+"_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
+		err := b.coreClient.Call(&result, module+"_getHeader", false, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			return

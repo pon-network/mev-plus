@@ -71,7 +71,8 @@ func FormatCommands(commands []*cli.Command) ([]*cli.Command, error) {
 		command.Name = name
 		command.Category = strings.ToUpper(strings.TrimSpace(command.Category))
 
-		if _, ok := moduleNameMap[command.Name]; ok {
+		// case insentive check of module names
+		if _, ok := moduleNameMap[strings.ToLower(command.Name)]; ok {
 			return nil, fmt.Errorf("Duplicate module command name %s", command.Name)
 		}
 		moduleNameMap[command.Name] = true
@@ -87,7 +88,7 @@ func FormatToAllowed(name string) (formattedName string, err error) {
 		return name, fmt.Errorf("module name (%s) must not contain underscores/spaces", name)
 	}
 
-	formattedName = strings.ToLower(strings.TrimSpace(name))
+	formattedName = strings.TrimSpace(name)
 
 	return formattedName, nil
 

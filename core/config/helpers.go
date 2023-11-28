@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/pon-pbs/mev-plus/core/version"
+	"github.com/pon-network/mev-plus/core/version"
 	"github.com/urfave/cli/v2"
 )
 

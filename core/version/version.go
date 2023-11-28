@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const ourPath = "github.com/pon-pbs/mev-plus" // Path to our module
+const ourPath = "github.com/pon-network/mev-plus" // Path to our module
 
 const (
 	VersionMajor = 1        // Major version component of the current release
