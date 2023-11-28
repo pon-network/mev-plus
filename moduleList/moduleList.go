@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
+	k2 "github.com/restaking-cloud/native-delegation-for-plus"
 )
 
 var ServiceList []coreCommon.Service
@@ -21,6 +22,7 @@ func init() {
 	ServiceList = []coreCommon.Service{
 
 		proxyModule.NewExternalValidatorProxyService(),
+		k2.NewK2Service(),
 	}
 	///////////////////////////////////////////////////
 
@@ -30,6 +32,7 @@ func init() {
 	commandList := []*cli.Command{
 
 		proxyModule.NewCommand(),
+		k2.NewCommand(),
 	}
 	////////////////////////////////////////////////
 
