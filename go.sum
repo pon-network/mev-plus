@@ -132,8 +132,8 @@ github.com/prometheus/common v0.42.0 h1:EKsfXEYo4JpWMHH5cg+KOUWeuJSov1Id8zGR8eeI
 github.com/prometheus/procfs v0.10.1 h1:kYK1Va/YMlutzCGazswoHKo//tZVlFpKYh+PymziUAg=
 github.com/prysmaticlabs/go-bitfield v0.0.0-20210809151128-385d8c5e3fb7 h1:0tVE4tdWQK9ZpYygoV7+vS6QkDvQVySboMVEIxBJmXw=
 github.com/prysmaticlabs/go-bitfield v0.0.0-20210809151128-385d8c5e3fb7/go.mod h1:wmuf/mdK4VMD+jA9ThwcUKjg3a2XWM9cVfFYjDyY4j4=
-github.com/restaking-cloud/native-delegation-for-plus v0.0.3 h1:sukDszDQyPloED8abW9AL6AEV+dDiM2fZyOJelurDmA=
-github.com/restaking-cloud/native-delegation-for-plus v0.0.3/go.mod h1:xZrY/YsztC8D8VWTQZyVbpawtReXc1GKFYP+FOT+Fww=
+github.com/restaking-cloud/native-delegation-for-plus v0.0.4 h1:bgvyCitWWBpDfFqIvJQMU7ToskRp1EbfWlW1FcCYvjY=
+github.com/restaking-cloud/native-delegation-for-plus v0.0.4/go.mod h1:xZrY/YsztC8D8VWTQZyVbpawtReXc1GKFYP+FOT+Fww=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=

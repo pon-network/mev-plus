@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"strconv"
 
 	"github.com/pon-network/mev-plus/common"
@@ -21,7 +22,10 @@ func (c *Client) nextID() json.RawMessage {
 
 func (c *Client) newMessage(method string, notifyAll bool, notificationExclusion []string, paramsIn ...interface{}) (*JsonRPCMessage, error) {
 	if _, ok := c.knownCallbacks[method]; !ok {
-		return nil, fmt.Errorf("unknown method: %s", method)
+		// if its not a notif message to all through core throw unknown
+		if !(strings.HasPrefix(method, "core_") && notifyAll) {
+			return nil, fmt.Errorf("unknown method: %s", method)
+		}
 	}
 	msg := &JsonRPCMessage{Version: common.Vsn, ID: c.nextID(), Method: method, NotifyAll: notifyAll, NotifyExclusion: notificationExclusion}
 	if paramsIn != nil { // prevent sending "params":null
