@@ -15,7 +15,7 @@ var CommandList []*cli.Command
 func init() {
 
 	///////////////////////////////////////////////////
-	// To attach your module to the MEV+ application //
+	// To attach your module to the MEV Plus application //
 	// you must import your service and command      //
 	// Import and append your service struct here    //
 	///////////////////////////////////////////////////

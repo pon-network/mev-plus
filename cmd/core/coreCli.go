@@ -1,4 +1,4 @@
-// mevPlus is the official command-line client for Mev+, the Ethereum validator proxy software.
+// mevPlus is the official command-line client for MEV Plus, the Ethereum validator proxy software.
 package coreCli
 
 import (
@@ -25,18 +25,18 @@ import (
 
 var (
 
-	// coreConfig are flags specific to the MEV+ core and services.
+	// coreConfig are flags specific to the MEV Plus core and services.
 	mainFlags = []cli.Flag{
 		// coreConfig.PoNEnabled,
 	}
 )
 
-var app = coreConfig.NewApp("the MEV+ command line interface")
+var app = coreConfig.NewApp("the MEV Plus command line interface")
 
 func init() {
-	// Initialize the CLI app and start MEV+
+	// Initialize the CLI app and start MEV Plus
 	app.Action = mevPlus
-	app.Copyright = "Copyright 2023 BlockSwap Labs"
+	app.Copyright = "Copyright 2023 Blockswap Labs"
 
 	var commands []*cli.Command
 	commands = []*cli.Command{
@@ -116,7 +116,7 @@ func prepare(ctx *cli.Context) {
 
 func makeCore(ctx *cli.Context) (*core.CoreService, error) {
 
-	log.Info("Creating the MEV+ core and services")
+	log.Info("Creating the MEV Plus core and services")
 	core := core.NewCoreService(ctx)
 
 	return core, nil
@@ -124,7 +124,7 @@ func makeCore(ctx *cli.Context) (*core.CoreService, error) {
 
 func setConfigs(core *core.CoreService, ctx *cli.Context) error {
 
-	log.Info("Setting the MEV+ core and services configurations")
+	log.Info("Setting the MEV Plus core and services configurations")
 
 	coreConfig := coreConfig.CoreConfig{}
 
@@ -162,21 +162,21 @@ func setCoreConfig(ctx *cli.Context, coreConfig *coreConfig.CoreConfig) error {
 
 func startCore(ctx *cli.Context, core *core.CoreService) {
 
-	log.Info("Starting the MEV+ core and services")
+	log.Info("Starting the MEV Plus core and services")
 
 	if err := core.Start(); err != nil {
-		log.WithError(err).Fatal("Failed to start the MEV+ core and services")
+		log.WithError(err).Fatal("Failed to start the MEV Plus core and services")
 	}
 
-	// Throughout the MEV+'s life cycle, listen for interrupt signals (SIGINT and SIGTERM) and
-	// handles the shutdown process of the MEV+ core and services.
+	// Throughout the MEV Plus's life cycle, listen for interrupt signals (SIGINT and SIGTERM) and
+	// handles the shutdown process of the MEV Plus core and services.
 	go func() {
 		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
 		defer signal.Stop(sigc)
 
 		shutdown := func() {
-			log.Info("MEV+ interrupt, shutting down...")
+			log.Info("MEV Plus interrupt, shutting down...")
 			go core.Close()
 			for i := 10; i > 0; i-- {
 				<-sigc
@@ -185,7 +185,7 @@ func startCore(ctx *cli.Context, core *core.CoreService) {
 				}
 			}
 			debug.SetTraceback("all")
-			panic("MEV+ abruptly stopped")
+			panic("MEV Plus abruptly stopped")
 		}
 
 		<-sigc
@@ -193,6 +193,6 @@ func startCore(ctx *cli.Context, core *core.CoreService) {
 
 	}()
 
-	log.Info("MEV+ core and services started")
+	log.Info("MEV Plus core and services started")
 
 }

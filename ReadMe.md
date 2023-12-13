@@ -16,7 +16,7 @@
 
 ## Introduction
 
-MEV+ is a side car ecosystem where consensus layer validators can communicate with outside applications such as PBS, execution layer etc. It can be thought of as the next evolution of validator proxy software introducing exciting on-chain and off-chain possibilities. This open-source solution offers modularity and exceptional scalability to accommodate a wide range of applications where each application is known as a module or plug-in.
+MEV Plus is a side car ecosystem where consensus layer validators can communicate with outside applications such as PBS, execution layer etc. It can be thought of as the next evolution of validator proxy software introducing exciting on-chain and off-chain possibilities. This open-source solution offers modularity and exceptional scalability to accommodate a wide range of applications where each application is known as a module or plug-in.
 
 MEV-plus's first flagship application enables validators to leverage a marketplace of block builders and relayers. These builders are responsible for crafting blocks that include transaction orderflow, along with a fee for the validator who proposes the block. The separation of roles between proposers and builders fosters healthy competition, decentralization, and enhances censorship resistance within the Ethereum ecosystem. It's a significant step towards a more robust and efficient network.
 

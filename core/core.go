@@ -357,10 +357,16 @@ func (c *CoreService) RelayComms() {
 								}
 								// check if the module is in the notify exclusion list
 								if msg.NotifyExclusion != nil {
+									var skipNotif bool
 									for _, exclusion := range msg.NotifyExclusion {
 										if exclusion == otherModule {
-											continue
+											skipNotif = true
+											break
 										}
+									}
+
+									if skipNotif {
+										continue
 									}
 								}
 

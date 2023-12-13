@@ -22,13 +22,13 @@ const (
 
 func (p *ExternalValidatorProxyService) Status() error {
 	path := pathStatus
-	url := p.cfg.Address
-	url.Path += path
+	url := p.cfg.Address.String()
+	url += path
 
 	p.log.Info("Checking External Validator Proxy service status")
 
 	// Send GET request to the proxy.
-	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodGet, url.String(), nil, nil)
+	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodGet, url, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -46,13 +46,13 @@ func (p *ExternalValidatorProxyService) Status() error {
 
 func (p *ExternalValidatorProxyService) RegisterValidator(payload []apiv1.SignedValidatorRegistration) error {
 	path := pathRegisterValidator
-	url := p.cfg.Address
-	url.Path += path
+	url := p.cfg.Address.String()
+	url += path
 
 	p.log.Info("Registering validator with External Validator Proxy service")
 
 	// Send POST request to the proxy.
-	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodPost, url.String(), payload, nil)
+	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodPost, url, payload, nil)
 	if err != nil {
 		return err
 	}
@@ -71,14 +71,14 @@ func (p *ExternalValidatorProxyService) RegisterValidator(payload []apiv1.Signed
 func (p *ExternalValidatorProxyService) GetHeader(slot uint64, parentHash, pubkey string) (res []spec.VersionedSignedBuilderBid, err error) {
 
 	path := fmt.Sprintf(pathGetHeader, slot, parentHash, pubkey)
-	url := p.cfg.Address
-	url.Path += path
+	url := p.cfg.Address.String()
+	url += path
 
 	p.log.Info("Getting header from External Validator Proxy service")
 
 	// Send GET request to the proxy.
 	response := new(spec.VersionedSignedBuilderBid)
-	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodGet, url.String(), nil, response)
+	code, err := SendHTTPRequest(context.Background(), p.httpClient, http.MethodGet, url, nil, response)
 	if err != nil {
 		return res, err
 	}
@@ -95,14 +95,14 @@ func (p *ExternalValidatorProxyService) GetHeader(slot uint64, parentHash, pubke
 func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, err error) {
 
 	path := pathGetPayload
-	url := p.cfg.Address
-	url.Path += path
+	url := p.cfg.Address.String()
+	url += path
 
 	p.log.Info("Getting payload from External Validator Proxy service")
 
 	// Send GET request to the proxy.
 	response := new(commonTypes.VersionedExecutionPayloadWithVersionName)
-	code, err := SendHTTPRequestWithRetries(context.Background(), p.httpClient, http.MethodGet, url.String(), VersionedSignedBlindedBeaconBlock, response, p.cfg.RequestMaxRetries, p.log)
+	code, err := SendHTTPRequestWithRetries(context.Background(), p.httpClient, http.MethodGet, url, VersionedSignedBlindedBeaconBlock, response, p.cfg.RequestMaxRetries, p.log)
 	if err != nil {
 		return versionedExecutionPayload, err
 	}
