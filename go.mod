@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/holiman/uint256 v1.2.3
-	github.com/restaking-cloud/native-delegation-for-plus v0.0.5
+	github.com/restaking-cloud/native-delegation-for-plus v0.0.6
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.25.7
 )
