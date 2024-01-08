@@ -2,7 +2,6 @@ package relay
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"time"
 
 	"github.com/attestantio/go-eth2-client/spec/phase0"
-	"github.com/google/uuid"
 	commonType "github.com/pon-network/mev-plus/common"
 	coreCommon "github.com/pon-network/mev-plus/core/common"
 	"github.com/pon-network/mev-plus/modules/relay/common"
@@ -19,23 +17,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	errServerAlreadyRunning = errors.New("server already running")
-)
-
 const (
 	HeaderKeySlotUID = "X-MEVPLUS-SlotID"
 	HeaderKeyVersion = "X-MEVPLUS-Version"
 )
 
-type slotUID struct {
-	slot uint64
-	uid  uuid.UUID
-}
-
 var (
 	nilHash     = phase0.Hash32{}
-	nilResponse = struct{}{}
 )
 
 const (

@@ -26,7 +26,6 @@ var (
 		Name:     ModuleName + "." + "address",
 		Usage:    "Set the listen address",
 		Category: utils.ExternalValidatorProxyCategory,
-		Value:    "text",
 	}
 
 	RequestTimeoutMsFlag = &cli.IntFlag{

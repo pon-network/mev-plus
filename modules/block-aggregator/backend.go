@@ -24,6 +24,8 @@ func (b *BlockAggregatorService) checkBlockSources() error {
 
 	handleStatusCheck := func(module string) {
 
+		defer wg.Done()
+
 		err := b.coreClient.Call(nil, module+"_status", false, nil)
 		mu.Lock()
 		defer mu.Unlock()
@@ -63,7 +65,7 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	var successfulRegistrations []string
 
 	// Notify all modules of the new validator registrations
-	b.coreClient.Notify(context.Background(), "core_registerValidator", true, b.ConnectedBLockSources, payload)
+	_ = b.coreClient.Notify(context.Background(), "core_registerValidator", true, b.ConnectedBLockSources, payload)
 
 	handleRegistration := func(module string) {
 
@@ -108,7 +110,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 	}
 
 	// Notify all modules of the new slot header request
-	b.coreClient.Notify(context.Background(), "core_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
+	_ = b.coreClient.Notify(context.Background(), "core_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
 
 	var wg sync.WaitGroup
 	type resultData struct {

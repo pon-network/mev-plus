@@ -7,22 +7,9 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"time"
 )
 
-const defaultWriteTimeout = 10 * time.Second
-
 var null = json.RawMessage("null")
-
-// parseMessage parses raw bytes as a (batch of) JSON-RPC message(s). There are no error
-// checks in this function because the raw message has already been syntax-checked when it
-// is called. Any non-JSON-RPC messages in the input return the zero value of
-// JsonRPCMessage.
-func parseMessage(raw json.RawMessage) (*JsonRPCMessage, bool) {
-		msg := JsonRPCMessage{}
-		json.Unmarshal(raw, &msg)
-		return &msg, false
-}
 
 // parsePositionalArguments tries to parse the given args to an array of values with the
 // given types. It returns the parsed values or an error when the args could not be

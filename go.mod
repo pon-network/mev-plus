@@ -10,10 +10,9 @@ require (
 	github.com/crate-crypto/go-ipa v0.0.0-20230914135612-d1b03fcb8e58
 	github.com/ethereum/go-ethereum v1.13.4
 	github.com/ferranbt/fastssz v0.1.3
-	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/holiman/uint256 v1.2.3
-	github.com/restaking-cloud/native-delegation-for-plus v0.0.6
+	github.com/restaking-cloud/native-delegation-for-plus v0.0.7
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.25.7
 )
@@ -35,6 +34,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/goccy/go-yaml v1.11.2 // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

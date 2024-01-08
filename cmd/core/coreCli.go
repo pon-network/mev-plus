@@ -61,7 +61,7 @@ func init() {
 		for _, flag := range cmd.Flags {
 			// all flags should me cmdName.FlagName
 
-			if strings.HasPrefix(flag.Names()[0], cmd.Name) == false {
+			if !strings.HasPrefix(flag.Names()[0], cmd.Name) {
 				panic(fmt.Sprintf("flag defined %s is not prefixed with module name %s", flag.Names()[0], cmd.Name))
 			}
 
@@ -108,10 +108,6 @@ func mevPlus(ctx *cli.Context) error {
 	core.Wait()
 
 	return nil
-}
-
-func prepare(ctx *cli.Context) {
-
 }
 
 func makeCore(ctx *cli.Context) (*core.CoreService, error) {

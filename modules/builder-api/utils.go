@@ -2,7 +2,6 @@ package builderapi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,58 +9,14 @@ import (
 	"time"
 	"strings"
 
-	"github.com/attestantio/go-builder-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/holiman/uint256"
 	"github.com/sirupsen/logrus"
 )
-
-// bidRespKey is used as key for the bids cache
-type bidRespKey struct {
-	slot      uint64
-	blockHash string
-}
-
-// responseWriter is a minimal wrapper for http.ResponseWriter that allows the
-// written HTTP status code to be captured for logging.
-type responseWriter struct {
-	http.ResponseWriter
-	status      int
-	wroteHeader bool
-}
-
-// bidInfo is used to store bid response fields for logging and validation
-type bidInfo struct {
-	blockHash   phase0.Hash32
-	parentHash  phase0.Hash32
-	pubkey      phase0.BLSPubKey
-	blockNumber uint64
-	txRoot      phase0.Root
-	value       *uint256.Int
-}
-
-// bidResp are entries in the bids cache
-type bidResp struct {
-	t        time.Time
-	response spec.VersionedSignedBuilderBid
-	bidInfo  bidInfo
-}
-
-func httpClientDisallowRedirects(_ *http.Request, _ []*http.Request) error {
-	return http.ErrUseLastResponse
-}
 
 const (
 	HeaderKeySlotUID = "X-MEVPlusID"
 	HeaderKeyVersion = "X-MEVPlus-Version"
-)
-
-var (
-	errHTTPErrorResponse  = errors.New("HTTP error response")
-	errInvalidForkVersion = errors.New("invalid fork version")
-	errInvalidTransaction = errors.New("invalid transaction")
-	errMaxRetriesExceeded = errors.New("max retries exceeded")
 )
 
 func createUrl(urlString string) (*url.URL, error) {
@@ -145,10 +100,6 @@ func LoggingMiddleware(logger *logrus.Entry, next http.Handler) http.Handler {
 			"duration": fmt.Sprintf("%f", time.Since(start).Seconds()),
 		}).Info(fmt.Sprintf("http: %s %s", r.Method, r.URL.EscapedPath()))
 		fmt.Println("*******************************")
-		fmt.Println("*******************************\n")
+		fmt.Println("*******************************")
 	})
-}
-
-func wrapResponseWriter(w http.ResponseWriter) *responseWriter {
-	return &responseWriter{ResponseWriter: w}
 }

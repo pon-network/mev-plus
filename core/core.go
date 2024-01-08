@@ -204,7 +204,7 @@ func (c *CoreService) Start() error {
 		_, stopErr := c.moduleRegistry.StopModuleServices()
 		if stopErr != nil {
 			err = fmt.Errorf("failed to stop modules after start error: %v, %v", err, stopErr)
-			return stopErr
+			return err
 		}
 		return err
 	}

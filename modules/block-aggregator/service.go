@@ -138,6 +138,7 @@ func (b *BlockAggregatorService) RegisterValidator(payload []apiv1.SignedValidat
 	for _, reg := range payload {
 		proposers = append(proposers, reg.Message.Pubkey.String())
 	}
+	b.log.WithField("proposers", proposers).Debugf("Processing %v validator registrations through block aggregator", len(payload))
 	b.log.Infof("Processing %v validator registrations through block aggregator", len(payload))
 	return b.processValidatorRegistrations(payload)
 }
@@ -197,7 +198,8 @@ func (b *BlockAggregatorService) GetPayload(VersionedSignedBlindedBeaconBlock *c
 	}
 
 	if len(result) == 0 {
-
+		b.log.Error("empty payload returned")
+		return versionedExecutionPayload, fmt.Errorf("empty payload returned")
 	}
 
 	baseExecutionPayload, err := result[0].VersionedExecutionPayload.ToBaseExecutionPayload()

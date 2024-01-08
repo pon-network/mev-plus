@@ -11,7 +11,7 @@ const ourPath = "github.com/pon-network/mev-plus" // Path to our module
 const (
 	VersionMajor = 0        // Major version component of the current release
 	VersionMinor = 0        // Minor version component of the current release
-	VersionPatch = 9        // Patch version component of the current release
+	VersionPatch = 10        // Patch version component of the current release
 	VersionMeta  = "stable" // Version metadata to append to the version string
 )
 
@@ -63,7 +63,7 @@ func versionInfo(info *debug.BuildInfo) string {
 		// If our module path wasn't imported, it's unclear which
 		// version of our code they are running. Fallback to hardcoded
 		// version.
-		return version + fmt.Sprintf("mevPlus")
+		return version + "mevPlus"
 	}
 	// Our package is a dependency for the main module. Return path and
 	// version data for both.
