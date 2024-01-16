@@ -26,7 +26,6 @@ var (
 		Name:     ModuleName + "." + "relay-entries",
 		Usage:    "Set the relay entries",
 		Category: utils.RelayModuleCategory,
-		Value:    "text",
 	}
 
 	RelayCheckFlag = &cli.BoolFlag{
@@ -47,21 +46,21 @@ var (
 		Name:     ModuleName + "." + "mainnet",
 		Usage:    "Set the network to mainnet",
 		Category: utils.RelayModuleCategory,
-		Value:    false,
+		Value:    true,
 	}
 
 	SepoliaFlag = &cli.BoolFlag{
 		Name:     ModuleName + "." + "sepolia",
 		Usage:    "Set the network to sepolia",
 		Category: utils.RelayModuleCategory,
-		Value:    false,
+		Value:    true,
 	}
 
 	GoerliFlag = &cli.BoolFlag{
 		Name:     ModuleName + "." + "goerli",
 		Usage:    "Set the network to goerli",
 		Category: utils.RelayModuleCategory,
-		Value:    false,
+		Value:    true,
 	}
 
 	MinBidFlag = &cli.StringFlag{

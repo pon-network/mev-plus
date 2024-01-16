@@ -47,7 +47,10 @@ func (b *BlockAggregatorService) checkBlockSources() error {
 
 	wg.Wait()
 
-	if len(sourcesUp) > 0 {
+	if len(b.ConnectedBLockSources) == 0 {
+		err = nil
+		b.log.Info("no block sources are configured")
+	} else if len(sourcesUp) > 0 {
 		b.log.WithField("sources", sourcesUp).Info("block sources are up")
 	} else {
 		err = fmt.Errorf("no module block sources are up")

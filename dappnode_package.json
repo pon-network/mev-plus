@@ -1,0 +1,12 @@
+{
+  "name": "mev-plus.public.dappnode.eth",
+  "version": "0.1.0",
+  "description": "Restaking cloud side car execution environment",
+  "type": "service",
+  "author": "Blockswap Labs",
+  "categories": ["Developer tools"],
+  "links": {
+    "homepage": "https://restaking.cloud/"
+  },
+  "license": "MIT"
+}

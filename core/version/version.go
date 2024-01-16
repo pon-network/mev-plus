@@ -11,7 +11,7 @@ const ourPath = "github.com/pon-network/mev-plus" // Path to our module
 const (
 	VersionMajor = 0        // Major version component of the current release
 	VersionMinor = 0        // Minor version component of the current release
-	VersionPatch = 10        // Patch version component of the current release
+	VersionPatch = 11        // Patch version component of the current release
 	VersionMeta  = "stable" // Version metadata to append to the version string
 )
 
