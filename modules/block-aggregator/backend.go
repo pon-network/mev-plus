@@ -68,7 +68,7 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	var successfulRegistrations []string
 
 	// Notify all modules of the new validator registrations
-	_ = b.coreClient.Notify(context.Background(), "core_registerValidator", true, b.ConnectedBLockSources, payload)
+	_ = b.coreClient.Notify(context.Background(), "core_registerValidator", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), payload)
 
 	handleRegistration := func(module string) {
 
@@ -113,7 +113,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 	}
 
 	// Notify all modules of the new slot header request
-	_ = b.coreClient.Notify(context.Background(), "core_getHeader", true, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
+	_ = b.coreClient.Notify(context.Background(), "core_getHeader", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), slot, parentHash, proposerPubkey)
 
 	var wg sync.WaitGroup
 	type resultData struct {
@@ -137,13 +137,15 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 			return
 		}
 
-		if result[0].IsEmpty() {
-			b.log.WithField("module", module).Warn("module returned empty header response")
-			return
-		}
+		for _, header := range result {
+			if header.IsEmpty() {
+				b.log.WithField("module", module).Warn("module returned empty header response")
+				continue
+			}
 
-		b.log.WithField("module", module).Info("module returned header response")
-		resultChan <- resultData{module, result[0]}
+			b.log.WithField("module", module).Info("module returned header response")
+			resultChan <- resultData{module, header}
+		}
 	}
 
 	for _, module := range b.ConnectedBLockSources {
@@ -185,6 +187,9 @@ func (b *BlockAggregatorService) processPayloadReq(VersionedSignedBlindedBeaconB
 	if err != nil {
 		return versionedExecutionPayload, slotHeader, err
 	}
+
+	// Notify all modules of the new payload request
+	_ = b.coreClient.Notify(context.Background(), "core_getPayload", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), &VersionedSignedBlindedBeaconBlock)
 
 	return result, slotHeader, nil
 

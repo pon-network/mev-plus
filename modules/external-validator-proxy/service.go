@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pon-network/mev-plus/common"
@@ -55,9 +56,20 @@ func (p *ExternalValidatorProxyService) Configure(moduleFlags common.ModuleFlags
 				return fmt.Errorf("invalid logger format %s", flagValue)
 			}
 		case config.AddressFlag.Name:
-			p.cfg.Address, err = createUrl(flagValue)
-			if err != nil {
-				return fmt.Errorf("-%s: invalid url %q", config.AddressFlag.Name, flagValue)
+			addressList := strings.Split(flagValue, ",")
+			if len(addressList) > 2 {
+				return fmt.Errorf("-%s: too many addresses provided", config.AddressFlag.Name)
+			}
+			for _, address := range addressList {
+				// check address string is not duplicate by checking if you can find more than one occurence in the flagValue
+				if strings.Count(flagValue, address) > 1 {
+					return fmt.Errorf("-%s: duplicate external proxy address provided %q", config.AddressFlag.Name, address)
+				}
+				addressUrl, err := createUrl(address)
+				if err != nil {
+					return fmt.Errorf("-%s: invalid url %q", config.AddressFlag.Name, address)
+				}
+				p.cfg.Addresses = append(p.cfg.Addresses, addressUrl)
 			}
 		case config.RequestTimeoutMsFlag.Name:
 			requestTimeoutMs, err := strconv.ParseInt(flagValue, 10, 64)
@@ -100,8 +112,14 @@ func (p *ExternalValidatorProxyService) ConnectCore(coreClient *coreCommon.Clien
 
 func (p *ExternalValidatorProxyService) Start() error {
 
-	if p.cfg.Address == nil {
-		// No address set, do not start
+	if len(p.cfg.Addresses) == 0 {
+		// No address set, do not start and do not receive notifications from block aggregator
+		ctx := context.Background()
+		err := p.coreClient.Notify(ctx, "blockAggregator_excludeFromNotifications", false, nil, config.ModuleName)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -111,8 +129,17 @@ func (p *ExternalValidatorProxyService) Start() error {
 		return err
 	}
 
-	if builderApiAddress == p.cfg.Address.String() {
-		return fmt.Errorf("proxy address %s is the same as the builder api address %s", p.cfg.Address.String(), builderApiAddress)
+	var joinedAddresses string
+
+	for _, address := range p.cfg.Addresses {
+		if builderApiAddress == address.String() {
+			return fmt.Errorf("proxy address %s is the same as the builder api address %s", address.String(), builderApiAddress)
+		}
+		if len(joinedAddresses) > 0 {
+			joinedAddresses = strings.Join([]string{joinedAddresses, address.String()}, ",")
+		} else {
+			joinedAddresses = address.String()
+		}
 	}
 
 	// Connect to the block aggregator module
@@ -122,7 +149,7 @@ func (p *ExternalValidatorProxyService) Start() error {
 		return err
 	}
 
-	p.log.WithField("proxyAddress", p.cfg.Address.String()).Info("Started External Validator Proxy service")
+	p.log.WithField("connectedProxyAddresses", joinedAddresses).Info("Started External Validator Proxy service")
 
 	return nil
 }

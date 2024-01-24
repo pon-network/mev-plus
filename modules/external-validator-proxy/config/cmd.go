@@ -11,7 +11,7 @@ func NewCommand() *cli.Command {
 	return &cli.Command{
 		Name:      ModuleName,
 		Usage:     "Start the external validator proxy module",
-		UsageText: "The external validator proxy module is a service that forwards Builder API requests to and from an attached external proxy",
+		UsageText: "The external validator proxy module is a service that forwards Builder API requests to and from attached external proxies",
 		Category:  utils.ExternalValidatorProxyCategory,
 		Flags:     proxyModuleFlags(),
 	}

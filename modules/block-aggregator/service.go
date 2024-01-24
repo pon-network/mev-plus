@@ -21,11 +21,12 @@ import (
 )
 
 type BlockAggregatorService struct {
-	coreClient            *coreCommon.Client
-	log                   *logrus.Entry
-	Data                  *data.AggregatorData
-	ConnectedBLockSources []string
-	lock                  sync.Mutex
+	coreClient                   *coreCommon.Client
+	log                          *logrus.Entry
+	Data                         *data.AggregatorData
+	ConnectedBLockSources        []string
+	ModuleNotificationExclusions []string
+	lock                         sync.Mutex
 
 	cfg config.BlockAggregatorConfig
 }
@@ -108,6 +109,14 @@ func (b *BlockAggregatorService) ConnectBlockSource(moduleName string) error {
 		}
 	}
 
+	// Check if the module was set to be excluded from notifications
+	for _, module := range b.ModuleNotificationExclusions {
+		if module == moduleName {
+			b.log.Infof("[%v] was set to be excluded from notifications, cannot set as block source then", moduleName)
+			return fmt.Errorf("[%v] was set to be excluded from notifications, cannot set as block source then", moduleName)
+		}
+	}
+
 	// check for the existence of the module by calling the module_name method
 	var moduleNameCheck string
 	err := b.coreClient.Call(&moduleNameCheck, moduleName+"_name", false, nil)
@@ -123,6 +132,70 @@ func (b *BlockAggregatorService) ConnectBlockSource(moduleName string) error {
 	b.ConnectedBLockSources = append(b.ConnectedBLockSources, moduleName)
 
 	b.log.Infof("Connected block source [%v] to block aggregator", moduleName)
+
+	return nil
+}
+
+func (b *BlockAggregatorService) DisconnectBlockSource(moduleName string) error {
+
+	if len(moduleName) == 0 {
+		return fmt.Errorf("invalid module name")
+	}
+
+	b.lock.Lock()
+	defer b.lock.Unlock()
+	// check if the module is connected
+	for i, module := range b.ConnectedBLockSources {
+		if module == moduleName {
+			b.ConnectedBLockSources = append(b.ConnectedBLockSources[:i], b.ConnectedBLockSources[i+1:]...)
+			b.log.Infof("Disconnected block source [%v] from block aggregator", moduleName)
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func (b *BlockAggregatorService) ExcludeFromNotifications(moduleName string) error {
+
+	if len(moduleName) == 0 {
+		return fmt.Errorf("invalid module name")
+	}
+
+	b.lock.Lock()
+	defer b.lock.Unlock()
+	// check if the module is already excluded from notifications
+	for _, module := range b.ModuleNotificationExclusions {
+		if module == moduleName {
+			b.log.Infof("[%v] already excluded from block aggregator notifications", moduleName)
+			return nil
+		}
+	}
+
+	// add the module to the list of excluded modules for notifications
+	b.ModuleNotificationExclusions = append(b.ModuleNotificationExclusions, moduleName)
+
+	b.log.Infof("Excluded [%v] from block aggregator notifications", moduleName)
+
+	return nil
+}
+
+func (b *BlockAggregatorService) IncludeInNotifications(moduleName string) error {
+
+	if len(moduleName) == 0 {
+		return fmt.Errorf("invalid module name")
+	}
+
+	b.lock.Lock()
+	defer b.lock.Unlock()
+	// check if the module is excluded from notifications
+	for i, module := range b.ModuleNotificationExclusions {
+		if module == moduleName {
+			b.ModuleNotificationExclusions = append(b.ModuleNotificationExclusions[:i], b.ModuleNotificationExclusions[i+1:]...)
+			b.log.Infof("Included [%v] in block aggregator notifications", moduleName)
+			return nil
+		}
+	}
 
 	return nil
 }
@@ -202,21 +275,28 @@ func (b *BlockAggregatorService) GetPayload(VersionedSignedBlindedBeaconBlock *c
 		return versionedExecutionPayload, fmt.Errorf("empty payload returned")
 	}
 
-	baseExecutionPayload, err := result[0].VersionedExecutionPayload.ToBaseExecutionPayload()
-	if err != nil {
-		b.log.WithError(err).Error("error processing payload request, invalid VersionedExecutionPayload returned")
-		return versionedExecutionPayload, err
+	for _, payload := range result {
+
+		baseExecutionPayload, err := payload.VersionedExecutionPayload.ToBaseExecutionPayload()
+		if err != nil {
+			b.log.WithError(err).Debugf("error processing payload request, invalid VersionedExecutionPayload returned")
+			continue
+		} else {
+			// Once one successful payload is returned, log it and return it
+			b.log.WithFields(logrus.Fields{
+				"slot":                   base.Message.Slot,
+				"parentHash":             base.Message.ParentRoot.String(),
+				"proposerIndex":          base.Message.ProposerIndex,
+				"blockHash_fromProposer": base.Message.Body.ExecutionPayloadHeader.BlockHash.String(),
+				"blockHash_fromModule":   baseExecutionPayload.BlockHash.String(),
+				"value":                  big.NewFloat(0).SetInt(slotHeader.Value).Quo(big.NewFloat(0).SetInt(slotHeader.Value), big.NewFloat(0).SetInt(big.NewInt(params.Ether))).String() + " ETH",
+				"fromModule":             slotHeader.ModuleName,
+			}).Info("block aggregator retrieved payload")
+
+			return result, nil
+		}
 	}
 
-	b.log.WithFields(logrus.Fields{
-		"slot":                   base.Message.Slot,
-		"parentHash":             base.Message.ParentRoot.String(),
-		"proposerIndex":          base.Message.ProposerIndex,
-		"blockHash_fromProposer": base.Message.Body.ExecutionPayloadHeader.BlockHash.String(),
-		"blockHash_fromModule":   baseExecutionPayload.BlockHash.String(),
-		"value":                  big.NewFloat(0).SetInt(slotHeader.Value).Quo(big.NewFloat(0).SetInt(slotHeader.Value), big.NewFloat(0).SetInt(big.NewInt(params.Ether))).String() + " ETH",
-		"fromModule":             slotHeader.ModuleName,
-	}).Info("block aggregator retrieved payload")
+	return versionedExecutionPayload, fmt.Errorf("empty payload returned")
 
-	return result, nil
 }

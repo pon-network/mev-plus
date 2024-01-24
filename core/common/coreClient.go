@@ -3,7 +3,6 @@ package common
 import (
 	"context"
 	"errors"
-	"sync"
 	"sync/atomic"
 
 	"github.com/pon-network/mev-plus/common"
@@ -26,7 +25,6 @@ type Client struct {
 	idgen func() string
 
 	idCounter    atomic.Uint32 // for request IDs
-	mu           sync.Mutex
 	commChannels *commChannels
 
 	knownCallbacks map[string]bool
@@ -44,11 +42,6 @@ type Client struct {
 }
 
 type clientContextKey struct{}
-
-type clientConn struct {
-	Channel chan JsonRPCMessage
-	Handler *handler
-}
 
 type commChannels struct {
 	Incoming chan JsonRPCMessage

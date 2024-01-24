@@ -24,7 +24,7 @@ var (
 
 	AddressFlag = &cli.StringFlag{
 		Name:     ModuleName + "." + "address",
-		Usage:    "Set the listen address",
+		Usage:    "Set the listen addresses [comma separated to a max of 2] for the external validator proxies to connect to",
 		Category: utils.ExternalValidatorProxyCategory,
 	}
 

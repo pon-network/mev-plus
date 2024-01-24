@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"runtime/debug"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/ethereum/go-ethereum/common/hexutil"

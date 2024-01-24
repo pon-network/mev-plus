@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	nilHash     = phase0.Hash32{}
+	nilHash = phase0.Hash32{}
 )
 
 const (
@@ -113,6 +113,11 @@ func (r *RelayService) Start() error {
 
 	if len(r.relays) == 0 {
 		// No relays configured do not connect and start the service
+		ctx := context.Background()
+		err := r.coreClient.Notify(ctx, "blockAggregator_excludeFromNotifications", false, nil, config.ModuleName)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
