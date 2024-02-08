@@ -56,7 +56,7 @@ const (
 )
 
 var (
-	g1OneJac, _, g1One, _     = bls12381.Generators()
+	_, _, g1Aff, _     = bls12381.Generators()
 	domain                    = []byte("BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_")
 	ErrInvalidPubkeyLength    = errors.New("invalid public key length")
 	ErrInvalidSecretKeyLength = errors.New("invalid secret key length")
@@ -259,7 +259,7 @@ func VerifySignature(sig *Signature, pk *PublicKey, msg []byte) (bool, error) {
 		return false, err
 	}
 	var negP bls12381.G1Affine
-	negP.Neg(&g1One)
+	negP.Neg(&g1Aff)
 	return bls12381.PairingCheck(
 		[]bls12381.G1Affine{*pk, negP},
 		[]bls12381.G2Affine{Q, *sig},

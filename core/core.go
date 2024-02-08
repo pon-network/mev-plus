@@ -13,6 +13,7 @@ import (
 
 	blockaggregator "github.com/pon-network/mev-plus/modules/block-aggregator"
 	builderapi "github.com/pon-network/mev-plus/modules/builder-api"
+	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
 	"github.com/pon-network/mev-plus/modules/relay"
 
 	cli "github.com/urfave/cli/v2"
@@ -83,6 +84,7 @@ func (c *CoreService) defaultServices() ([]coreCommon.Service, error) {
 		builderapi.NewBuilderApiService(),
 		blockaggregator.NewBlockAggregatorService(),
 		relay.NewRelayService(),
+		proxyModule.NewExternalValidatorProxyService(),
 	}
 
 	return serviceList, nil

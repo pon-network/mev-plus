@@ -5,7 +5,6 @@ import (
 	coreCommon "github.com/pon-network/mev-plus/core/common"
 	"github.com/urfave/cli/v2"
 
-	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
 	k2 "github.com/restaking-cloud/native-delegation-for-plus"
 )
 
@@ -20,8 +19,6 @@ func init() {
 	// Import and append your service struct here    //
 	///////////////////////////////////////////////////
 	ServiceList = []coreCommon.Service{
-
-		proxyModule.NewExternalValidatorProxyService(),
 		k2.NewK2Service(),
 	}
 	///////////////////////////////////////////////////
@@ -30,8 +27,6 @@ func init() {
 	// Import and append your command  here          //
 	///////////////////////////////////////////////////
 	commandList := []*cli.Command{
-
-		proxyModule.NewCommand(),
 		k2.NewCommand(),
 	}
 	////////////////////////////////////////////////

@@ -12,9 +12,6 @@ import (
 	"github.com/pon-network/mev-plus/core"
 	coreConfig "github.com/pon-network/mev-plus/core/config"
 	moduleList "github.com/pon-network/mev-plus/moduleList"
-	aggregator "github.com/pon-network/mev-plus/modules/block-aggregator/config"
-	builderApi "github.com/pon-network/mev-plus/modules/builder-api/config"
-	relay "github.com/pon-network/mev-plus/modules/relay/config"
 
 	"runtime/debug"
 
@@ -38,13 +35,9 @@ func init() {
 	app.Action = mevPlus
 	app.Copyright = "Copyright 2023 Blockswap Labs"
 
-	var commands []*cli.Command
-	commands = []*cli.Command{
-		// Load default module cli commands
-		builderApi.NewCommand(),
-		relay.NewCommand(),
-		aggregator.NewCommand(),
-	}
+	// Load default module cli commands
+	commands := coreConfig.DefaulModulesCommands
+
 	// Load commands for other modules
 	commands = append(commands, moduleList.CommandList...)
 

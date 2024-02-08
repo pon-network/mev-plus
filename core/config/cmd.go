@@ -5,6 +5,7 @@ import (
 
 	aggregator "github.com/pon-network/mev-plus/modules/block-aggregator/config"
 	builderApi "github.com/pon-network/mev-plus/modules/builder-api/config"
+	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
 	relay "github.com/pon-network/mev-plus/modules/relay/config"
 )
 
@@ -21,5 +22,6 @@ func init() {
 		builderApi.NewCommand(),
 		relay.NewCommand(),
 		aggregator.NewCommand(),
+		proxyModule.NewCommand(),
 	}
 }

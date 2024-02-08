@@ -11,7 +11,6 @@ import (
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 
 	"github.com/attestantio/go-builder-client/spec"
-	"github.com/attestantio/go-eth2-client/spec/phase0"
 
 	apiv1 "github.com/attestantio/go-builder-client/api/v1"
 )
@@ -31,7 +30,6 @@ type httpErrorResp struct {
 }
 
 var (
-	nilHash     = phase0.Hash32{}
 	nilResponse = struct{}{}
 )
 
@@ -131,7 +129,7 @@ func (b *BuilderApiService) handleGetPayload(w http.ResponseWriter, req *http.Re
 	}
 
 	if len(result) == 0 {
-		b.respondError(w, http.StatusInternalServerError, fmt.Sprintf("blockAggregator returned no payload"))
+		b.respondError(w, http.StatusInternalServerError, "blockAggregator returned no payload")
 	}
 
 	b.respondOK(w, &(result[0]))

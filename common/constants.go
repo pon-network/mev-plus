@@ -5,12 +5,14 @@ const (
 	builderApiModuleName = "builderApi"
 	relayModuleName      = "relay"
 	blockAggregatorName  = "blockAggregator"
+	proxyModuleName      = "externalValidatorProxy"
 )
 
 var DefaultModuleNames = []string{
 	builderApiModuleName,
 	relayModuleName,
 	blockAggregatorName,
+	proxyModuleName,
 }
 
 // JSON RPC constants
