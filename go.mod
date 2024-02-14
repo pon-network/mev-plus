@@ -12,7 +12,7 @@ require (
 	github.com/ferranbt/fastssz v0.1.3
 	github.com/gorilla/mux v1.8.0
 	github.com/holiman/uint256 v1.2.3
-	github.com/restaking-cloud/native-delegation-for-plus v0.1.0
+	github.com/restaking-cloud/native-delegation-for-plus v0.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.25.7
 )
