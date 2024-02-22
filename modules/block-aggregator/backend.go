@@ -83,7 +83,7 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 			return
 		}
 		successfulRegistrations = append(successfulRegistrations, module)
-		b.log.WithField("module", module).Info("successfully registered validator")
+		b.log.WithField("module", module).Infof("Successfully registered validator with connected block source: %s", module)
 	}
 
 	for _, module := range b.ConnectedBLockSources {
