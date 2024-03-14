@@ -16,6 +16,6 @@ var ProxyConfigDefaults = ProxyConfig{
 	LoggerLevel:       "info",
 	LoggerFormat:      "text",
 	Addresses: 		 []*url.URL{}, // Default to nil so we can check if it's set
-	RequestTimeoutMs:  5000,
+	RequestTimeoutMs:  12000,
 	RequestMaxRetries: 3,
 }

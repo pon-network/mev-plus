@@ -100,7 +100,7 @@ func (r *RelayService) processGetHeader(slot uint64, parentHashHex, pubkey strin
 }
 
 
-func (r *RelayService) processGetPayload(block commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, err error) {
+func (r *RelayService) processGetPayload(block commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadV2WithVersionName, err error) {
 	log := r.log.WithField("method", "getPayload")
 
 	blockBase, err := block.ToBaseSignedBlindedBeaconBlock()
@@ -128,7 +128,7 @@ func (r *RelayService) processGetPayload(block commonTypes.VersionedSignedBlinde
 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	var result commonTypes.VersionedExecutionPayloadWithVersionName
+	var result commonTypes.VersionedExecutionPayloadV2WithVersionName
 
 	requestCtx, requestCtxCancel := context.WithCancel(context.Background())
 	defer requestCtxCancel()
@@ -144,13 +144,13 @@ func (r *RelayService) processGetPayload(block commonTypes.VersionedSignedBlinde
 
 	wg.Wait()
 
-	if result == (commonTypes.VersionedExecutionPayloadWithVersionName{}) {
+	if result == (commonTypes.VersionedExecutionPayloadV2WithVersionName{}) {
 		originRelays := RelayEntriesToStrings(originalBid.relays)
 		logger.WithField("relaysWithBid", strings.Join(originRelays, ", ")).Error("No payload received from any relay!")
 		return nil, ErrNoPayloadReceived
 	}
 
-	res := []commonTypes.VersionedExecutionPayloadWithVersionName{result}
+	res := []commonTypes.VersionedExecutionPayloadV2WithVersionName{result}
 
 	return res, nil
 }

@@ -1,4 +1,4 @@
-version: '3'
+version: "3.4"
 services:
   mevplus:
     build:
@@ -6,14 +6,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "10000:10000"
-    network_mode: host
     environment:
-      - BUILDER_API_ADDRESS=http://localhost:18551
-      - EXTERNAL_VALIDATOR_PROXY_ADDRESS=http://localhost:18550
-      - ETH1_PRIVATE_KEY=${PRIVATE_KEY}
-      - BEACON_NODE_URL=http://localhost:5052
-      - EXECUTION_NODE_URL=http://localhost:8545
+      - EXTERNAL_VALIDATOR_PROXY_ADDRESS=
+      - ETH1_PRIVATE_KEY=
+      - BEACON_NODE_URL=
+      - EXECUTION_NODE_URL=
+      - LOGGER_LEVEL=debug
+      - EXTRA_OPTS=
     restart: unless-stopped
-
-
-
+    image: "mevplus.mev-plus.public.dappnode.eth:0.0.1"

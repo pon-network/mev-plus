@@ -118,12 +118,12 @@ func (r *RelayService) requestRelayHeader(slot uint64, parentHashHex, pubkey str
 }
 
 
-func (r *RelayService) requestRelayPayload(relay RelayEntry, logger *logrus.Entry, block *commonTypes.VersionedSignedBlindedBeaconBlock, result *commonTypes.VersionedExecutionPayloadWithVersionName, mu *sync.Mutex, requestCtx context.Context, requestCtxCancel context.CancelFunc) {
+func (r *RelayService) requestRelayPayload(relay RelayEntry, logger *logrus.Entry, block *commonTypes.VersionedSignedBlindedBeaconBlock, result *commonTypes.VersionedExecutionPayloadV2WithVersionName, mu *sync.Mutex, requestCtx context.Context, requestCtxCancel context.CancelFunc) {
 	url := relay.GetURI(pathGetPayload)
 	logger = logger.WithField("url", url)
 	logger.Debug("calling getPayload")
 
-	responsePayload := new(commonTypes.VersionedExecutionPayloadWithVersionName)
+	responsePayload := new(commonTypes.VersionedExecutionPayloadV2WithVersionName)
 	_, err := SendHTTPRequestWithRetries(requestCtx, r.httpClient, http.MethodPost, url, block, responsePayload, r.cfg.RequestMaxRetries, logger)
 
 	if err != nil {
@@ -182,7 +182,38 @@ func (r *RelayService) requestRelayPayload(relay RelayEntry, logger *logrus.Entr
 		return
 	}
 
-	// Lock before accessing the shared payload
+	// ensure all the commitments, proofs and blobs are present
+	blobsBundle := responsePayloadBase.BlobsBundle
+	if len(blobsBundle.Commitments) != len(blobsBundle.Blobs) || len(blobsBundle.Commitments) != len(blobsBundle.Proofs) {
+		err := fmt.Errorf("commitments, proofs and blobs are not of the same length")
+		logger.WithFields(
+			logrus.Fields{
+				"commitments": len(blobsBundle.Commitments),
+				"proofs":      len(blobsBundle.Proofs),
+				"blobs":       len(blobsBundle.Blobs),
+			}).WithError(
+			err,
+		).Errorf(
+			"Wrong commitments, proofs and blobs returned from relay's get payload endpoint: %s", relay.String(),
+		)
+		return
+	}
+	for i, commitment := range blobsBundle.Commitments {
+		if commitment != blockBase.Message.Body.BlobKZGCommitments[i] {
+			err := fmt.Errorf("commitment returned from relay's get payload endpoint %s does not match the one provided at index %s", commitment.String(), blockBase.Message.Body.BlobKZGCommitments[i].String())
+			logger.WithFields(
+				logrus.Fields{
+					"commitment": commitment.String(),
+					"provided":   blockBase.Message.Body.BlobKZGCommitments[i].String(),
+				}).WithError(
+				err,
+			).Errorf(
+				"Wrong commitment returned from relay's get payload endpoint: %s", relay.String(),
+			)
+			continue
+		}
+	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -192,7 +223,7 @@ func (r *RelayService) requestRelayPayload(relay RelayEntry, logger *logrus.Entr
 
 	requestCtxCancel()
 
-	if *result != (commonTypes.VersionedExecutionPayloadWithVersionName{}) {
+	if *result != (commonTypes.VersionedExecutionPayloadV2WithVersionName{}) {
 		logger.Warn("Received payload from multiple relays. Ignoring subsequent ones")
 		return
 	}

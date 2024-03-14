@@ -1,0 +1,11 @@
+version: "2"
+fields:
+  - id: ETH1_PRIVATE_KEY
+    target:
+      type: environment
+      name: ETH1_PRIVATE_KEY
+      service: mevplus
+    title: Private Key for Execution Layer Validator Management
+    description: >-
+      Supply the private key for a wallet and fund it with a little bit of ETH to perform native delegation and manage validators
+    required: true

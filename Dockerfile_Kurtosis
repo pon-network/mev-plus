@@ -1,0 +1,46 @@
+# Build mev-plus in a stock Go build container
+FROM golang:1.21-alpine as builder
+
+# Install minimum necessary dependencies,
+# remove ca-certificates.crt as it is not needed in scratch
+RUN apk update && apk add --no-cache make gcc musl-dev linux-headers git bash
+
+# Set the working directory to /src/mev-plus
+WORKDIR /src/mev-plus
+
+# Copy the current directory contents into the container at /src/mev-plus
+COPY . /src/mev-plus
+
+# Build mev-plus
+RUN bash -c "go build -o mevPlus mevPlus.go"
+
+# Pull all binaries into a second stage deploy container
+FROM alpine:3
+
+ARG USER=mevPlus
+ARG UID=11000
+
+RUN apk add --no-cache ca-certificates tzdata bash su-exec git jq
+
+# See https://stackoverflow.com/a/55757473/12429735RUN
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --shell "/sbin/nologin" \
+    --uid "${UID}" \
+    "${USER}"
+
+RUN mkdir -p /var/lib/mevplus && chown -R ${USER}:${USER} /var/lib/mevplus && chmod -R 700 /var/lib/mevplus
+
+# Cannot assume buildkit, hence no chmod
+COPY --from=builder --chown=${USER}:${USER} /src/mev-plus/mevPlus /usr/local/bin/
+# Belt and suspenders
+RUN chmod -R 755 /usr/local/bin/*
+
+# Expose default port (8080)
+EXPOSE 8080
+EXPOSE 80
+
+USER ${USER}
+
+ENTRYPOINT ["mevPlus"]

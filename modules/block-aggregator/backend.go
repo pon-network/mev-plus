@@ -67,14 +67,13 @@ func (b *BlockAggregatorService) processValidatorRegistrations(payload []apiv1.S
 	var errors []error
 	var successfulRegistrations []string
 
-	// Notify all modules of the new validator registrations
+	// Notify all modules of the new validator registrations once
 	_ = b.coreClient.Notify(context.Background(), "core_registerValidator", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), payload)
 
 	handleRegistration := func(module string) {
 
 		defer wg.Done()
-
-		err := b.coreClient.Call(nil, module+"_registerValidator", false, b.ConnectedBLockSources, payload)
+		err := b.coreClient.Call(nil, module+"_registerValidator", false, nil, payload) // No need to notify modules on each handler since notified all modules once already
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			mu.Lock()
@@ -112,7 +111,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		time.Sleep(timeUntilDeadline)
 	}
 
-	// Notify all modules of the new slot header request
+	// Notify all modules of the new slot header request once
 	_ = b.coreClient.Notify(context.Background(), "core_getHeader", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), slot, parentHash, proposerPubkey)
 
 	var wg sync.WaitGroup
@@ -126,7 +125,7 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		defer wg.Done()
 
 		var result []spec.VersionedSignedBuilderBid
-		err := b.coreClient.Call(&result, module+"_getHeader", false, b.ConnectedBLockSources, slot, parentHash, proposerPubkey)
+		err := b.coreClient.Call(&result, module+"_getHeader", false, nil, slot, parentHash, proposerPubkey) // No need to notify modules on each handler since notified all modules once already
 		if err != nil {
 			b.log.WithError(err).WithField("module", module).Warn("error calling module")
 			return
@@ -168,10 +167,13 @@ func (b *BlockAggregatorService) processHeaderReq(slot uint64, parentHash, propo
 		return data.SlotHeader{}, err
 	}
 
+	// Notify modules on receipt of new slot header
+	_ = b.coreClient.Notify(context.Background(), "core_receivedHeader", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), *slotHeader.Bid)
+
 	return slotHeader, nil
 }
 
-func (b *BlockAggregatorService) processPayloadReq(VersionedSignedBlindedBeaconBlock commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, slotHeader data.SlotHeader, err error) {
+func (b *BlockAggregatorService) processPayloadReq(VersionedSignedBlindedBeaconBlock commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadV2WithVersionName, slotHeader data.SlotHeader, err error) {
 
 	baseSignedBlindedBeaconBlock, err := VersionedSignedBlindedBeaconBlock.ToBaseSignedBlindedBeaconBlock()
 	if err != nil {
@@ -182,14 +184,22 @@ func (b *BlockAggregatorService) processPayloadReq(VersionedSignedBlindedBeaconB
 	if err != nil {
 		return versionedExecutionPayload, slotHeader, err
 	}
-	var result []commonTypes.VersionedExecutionPayloadWithVersionName
-	err = b.coreClient.Call(&result, slotHeader.ModuleName+"_getPayload", true, b.ConnectedBLockSources, &VersionedSignedBlindedBeaconBlock)
+
+	if slotHeader.Bid.IsEmpty() {
+		return versionedExecutionPayload, slotHeader, fmt.Errorf("slot header bid is empty")
+	}
+
+	var result []commonTypes.VersionedExecutionPayloadV2WithVersionName
+	b.log.WithField("fromModule", slotHeader.ModuleName).Info("Getting payload from block source")
+	err = b.coreClient.Call(&result, slotHeader.ModuleName+"_getPayload", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), &VersionedSignedBlindedBeaconBlock) // Since the call is made once and not a looped handler, can notify all modules once while executing the call
 	if err != nil {
 		return versionedExecutionPayload, slotHeader, err
 	}
 
-	// Notify all modules of the new payload request
-	_ = b.coreClient.Notify(context.Background(), "core_getPayload", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), &VersionedSignedBlindedBeaconBlock)
+	// Notify modules on receipt of new payload(s)
+	if len(result) > 0 {
+		_ = b.coreClient.Notify(context.Background(), "core_receivedPayload", true, append(b.ConnectedBLockSources, b.ModuleNotificationExclusions...), result)
+	}
 
 	return result, slotHeader, nil
 

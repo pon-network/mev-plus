@@ -36,6 +36,7 @@ func NewBlockAggregatorService() *BlockAggregatorService {
 		log:  logrus.NewEntry(logrus.New()).WithField("moduleExecution", config.ModuleName),
 		Data: data.NewAggregatorData(),
 		cfg:  config.BlockAggregatorConfigDefaults,
+		ModuleNotificationExclusions: []string{"builderApi", "blockAggregator"},
 	}
 }
 
@@ -250,7 +251,7 @@ func (b *BlockAggregatorService) GetHeader(slot uint64, parentHash, proposerPubk
 	return res, nil
 }
 
-func (b *BlockAggregatorService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, err error) {
+func (b *BlockAggregatorService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadV2WithVersionName, err error) {
 	b.log.Info("Processing get payload request through block aggregator")
 
 	base, err := VersionedSignedBlindedBeaconBlock.ToBaseSignedBlindedBeaconBlock()
@@ -293,7 +294,7 @@ func (b *BlockAggregatorService) GetPayload(VersionedSignedBlindedBeaconBlock *c
 				"fromModule":             slotHeader.ModuleName,
 			}).Info("block aggregator retrieved payload")
 
-			return result, nil
+			return []commonTypes.VersionedExecutionPayloadV2WithVersionName{payload}, nil
 		}
 	}
 

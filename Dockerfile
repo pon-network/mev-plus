@@ -1,19 +1,40 @@
-# Using the official Golang 1.20 image as the base image
-FROM golang:1.20
+# Stage 1: Building the application
+# Using the official Golang 1.20 image as the base image for building the app
+FROM golang:1.20 AS builder
 
 # the working directory inside the container
 WORKDIR /app
 
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies.
+# If the go.mod and the go.sum file are not changed, then the docker build cache
+# will not re-run this step, thereby saving time
+RUN go mod download
+
 # Copy the entire MEV Plus project to the container
 COPY . .
 
-RUN go build -o mevPlus mevPlus.go
+# Compile the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o mevPlus ./mevPlus.go
 
+# Stage 2: Setup the runtime container
+# Use a minimal base image to reduce the final image size and attack surface
+FROM alpine:latest
+
+# Set the working directory in the container
+WORKDIR /root/
+
+# Copy the pre-built binary file from the previous stage
+COPY --from=builder /app/mevPlus .
+COPY --from=builder /app/entrypoint.sh .
+COPY --from=builder /app/setup-wizard.yml .
+
+# Make sure the entrypoint script is executable
+RUN chmod +x ./entrypoint.sh
+
+# K2 server port
 EXPOSE 10000
 
-CMD ["/bin/sh", "-c", "./mevPlus \
-   -builderApi.listen-address $BUILDER_API_ADDRESS \
-   -externalValidatorProxy.address $EXTERNAL_VALIDATOR_PROXY_ADDRESS \
-   -k2.eth1-private-key $ETH1_PRIVATE_KEY \
-   -k2.beacon-node-url $BEACON_NODE_URL \
-   -k2.execution-node-url $EXECUTION_NODE_URL"]
+ENTRYPOINT [ "./entrypoint.sh" ]

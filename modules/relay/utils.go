@@ -388,7 +388,7 @@ func validatePayloadBlock(blockBase commonTypes.BaseSignedBlindedBeaconBlock, lo
 
 func validateOriginalBid(logger *logrus.Entry, originalBid bidResp) error {
 	if originalBid.response.IsEmpty() {
-		logger.Error("No bid for this getPayload payload found. Was getHeader called before?")
+		logger.Error("No original bid found")
 		return ErrNoBidReceived
 	} else if len(originalBid.relays) == 0 {
 		logger.Warn("Bid found but no associated relays")

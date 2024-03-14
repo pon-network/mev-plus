@@ -19,7 +19,7 @@
   },
   "globalEnvs": [
     {
-      "envs": ["EXECUTION_CLIENT_MAINNET", "CONSENSUS_CLIENT_MAINNET", "MEVBOOST_MAINNET"],
+      "envs": ["EXECUTION_CLIENT_HOLESKY", "CONSENSUS_CLIENT_HOLESKY"],
       "services": ["mevplus"]
     }
   ]

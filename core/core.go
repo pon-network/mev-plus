@@ -335,7 +335,6 @@ func (c *CoreService) RelayComms() {
 
 								channels.Incoming <- errResponse
 							}
-
 						} else {
 							targettedModuleChannels.Incoming <- msg
 						}
@@ -358,7 +357,7 @@ func (c *CoreService) RelayComms() {
 									continue
 								}
 								// check if the module is in the notify exclusion list
-								if msg.NotifyExclusion != nil {
+								if len(msg.NotifyExclusion) > 0 {
 									var skipNotif bool
 									for _, exclusion := range msg.NotifyExclusion {
 										if exclusion == otherModule {

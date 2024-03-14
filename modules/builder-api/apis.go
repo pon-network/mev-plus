@@ -121,7 +121,7 @@ func (b *BuilderApiService) handleGetPayload(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	result := []commonTypes.VersionedExecutionPayloadWithVersionName{}
+	result := []commonTypes.VersionedExecutionPayloadV2WithVersionName{}
 	err := b.coreClient.Call(&result, "blockAggregator_getPayload", false, nil, payload)
 	if err != nil {
 		b.respondError(w, http.StatusInternalServerError, err.Error())

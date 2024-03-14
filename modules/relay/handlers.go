@@ -38,6 +38,6 @@ func (r *RelayService) GetHeader(slot uint64, parentHash, pubkey string) (res []
 	return []spec.VersionedSignedBuilderBid{result.response}, nil
 }
 
-func (r *RelayService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, err error) {
+func (r *RelayService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadV2WithVersionName, err error) {
 	return r.processGetPayload(*VersionedSignedBlindedBeaconBlock)
 }

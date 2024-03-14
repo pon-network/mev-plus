@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
+	"github.com/sirupsen/logrus"
 
 	"github.com/attestantio/go-builder-client/spec"
 
@@ -116,7 +117,7 @@ func (p *ExternalValidatorProxyService) GetHeader(slot uint64, parentHash, pubke
 				proxyErrRespCh <- err
 				proxyRespCh <- spec.VersionedSignedBuilderBid{}
 				return
-			} else if code != http.StatusOK {
+			} else if code != http.StatusOK && response.IsEmpty() {
 				p.log.WithError(err).Warnf("Error while calling proxy's get header endpoint: %s", proxy)
 				proxyErrRespCh <- fmt.Errorf("status code %d", code)
 				proxyRespCh <- spec.VersionedSignedBuilderBid{}
@@ -154,7 +155,7 @@ func (p *ExternalValidatorProxyService) GetHeader(slot uint64, parentHash, pubke
 
 }
 
-func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadWithVersionName, err error) {
+func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconBlock *commonTypes.VersionedSignedBlindedBeaconBlock) (versionedExecutionPayload []commonTypes.VersionedExecutionPayloadV2WithVersionName, err error) {
 
 	p.log.Info("Getting payload from External Validator Proxy service")
 
@@ -165,17 +166,17 @@ func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconB
 
 	var respErr error
 	proxyErrRespCh := make(chan error, len(p.cfg.Addresses))
-	proxyRespCh := make(chan commonTypes.VersionedExecutionPayloadWithVersionName, len(p.cfg.Addresses))
+	proxyRespCh := make(chan commonTypes.VersionedExecutionPayloadV2WithVersionName, len(p.cfg.Addresses))
 
 	for _, proxy := range p.cfg.Addresses {
 		go func(proxy string) {
 			url := proxy + pathGetPayload
-			response := new(commonTypes.VersionedExecutionPayloadWithVersionName)
+			response := new(commonTypes.VersionedExecutionPayloadV2WithVersionName)
 			code, err := SendHTTPRequestWithRetries(context.Background(), p.httpClient, http.MethodPost, url, VersionedSignedBlindedBeaconBlock, response, p.cfg.RequestMaxRetries, p.log)
 			if err != nil {
 				p.log.WithError(err).Debugf("Error while calling proxy's get payload endpoint: %s", proxy)
 				proxyErrRespCh <- err
-				proxyRespCh <- commonTypes.VersionedExecutionPayloadWithVersionName{}
+				proxyRespCh <- commonTypes.VersionedExecutionPayloadV2WithVersionName{}
 				return
 			} else if code != http.StatusOK {
 				// Do not log an error here as the proxy software may throw an error about
@@ -183,7 +184,7 @@ func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconB
 				// headers accross proxies like relays, as two proxies may get the same header from being
 				// connected to the relay or not depending on users configurations
 				proxyErrRespCh <- fmt.Errorf("status code %d", code)
-				proxyRespCh <- commonTypes.VersionedExecutionPayloadWithVersionName{}
+				proxyRespCh <- commonTypes.VersionedExecutionPayloadV2WithVersionName{}
 				return
 			}
 			proxyRespCh <- *response
@@ -212,7 +213,39 @@ func (p *ExternalValidatorProxyService) GetPayload(VersionedSignedBlindedBeaconB
 				continue
 			}
 
-			// If any of the proxies returns a payload append it to the response
+			// ensure all the commitments, proofs and blobs are present
+			blobsBundle := baseExecutionPayload.BlobsBundle
+			if len(blobsBundle.Commitments) != len(blobsBundle.Blobs) || len(blobsBundle.Commitments) != len(blobsBundle.Proofs) {
+				err := fmt.Errorf("commitments, proofs and blobs are not of the same length")
+				p.log.WithFields(
+					logrus.Fields{
+						"commitments": len(blobsBundle.Commitments),
+						"proofs":      len(blobsBundle.Proofs),
+						"blobs":       len(blobsBundle.Blobs),
+					}).WithError(
+					err,
+				).Debugf(
+					"Wrong commitments, proofs and blobs returned from proxy's get payload endpoint: %s", p.cfg.Addresses[i].String(),
+				)
+				continue
+			}
+			for i, commitment := range blobsBundle.Commitments {
+				if commitment != baseSignedBlindedBeaconBlock.Message.Body.BlobKZGCommitments[i] {
+					err := fmt.Errorf("commitment returned from proxy's get payload endpoint %s does not match the one provided at index %s", commitment.String(), baseSignedBlindedBeaconBlock.Message.Body.BlobKZGCommitments[i].String())
+					p.log.WithFields(
+						logrus.Fields{
+							"commitment": commitment.String(),
+							"provided":   baseSignedBlindedBeaconBlock.Message.Body.BlobKZGCommitments[i].String(),
+						}).WithError(
+						err,
+					).Debugf(
+						"Wrong commitment returned from proxy's get payload endpoint: %s", p.cfg.Addresses[i].String(),
+					)
+					continue
+				}
+			}
+
+			// If any of the proxies returns a payload append it
 			versionedExecutionPayload = append(versionedExecutionPayload, resp)
 		}
 	}
