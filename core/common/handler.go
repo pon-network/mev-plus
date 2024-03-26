@@ -23,8 +23,6 @@ type handler struct {
 
 	serviceCallBacks map[string]*Callback
 
-	subLock sync.Mutex
-
 	log log.Logger
 }
 

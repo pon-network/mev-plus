@@ -95,6 +95,9 @@ func (c *Client) send(ctx context.Context, op *requestOp, msg interface{}) error
 }
 
 func (c *Client) write(ctx context.Context, msg interface{}) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
 	c.commChannels.Outgoing <- *msg.(*JsonRPCMessage)
 	return nil
 }

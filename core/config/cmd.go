@@ -3,25 +3,32 @@ package config
 import (
 	"github.com/urfave/cli/v2"
 
-	aggregator "github.com/pon-network/mev-plus/modules/block-aggregator/config"
-	builderApi "github.com/pon-network/mev-plus/modules/builder-api/config"
+	coreCommon "github.com/pon-network/mev-plus/core/common"
+
+	aggregator "github.com/pon-network/mev-plus/modules/block-aggregator"
+	builderApi "github.com/pon-network/mev-plus/modules/builder-api"
 	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
-	relay "github.com/pon-network/mev-plus/modules/relay/config"
+	relay "github.com/pon-network/mev-plus/modules/relay"
+
+	// Additional MEV Plus Functionalities
+	"github.com/pon-network/mev-plus/core/additionalFeatures/moduleManagement"
 )
 
-// Core does not have any extra commands,
-// this is to load default module commands that come
-// pre=pacakged with the core
+var DefaultModules []coreCommon.Service
 
-// CoreFlags are the flags that are used by the core in flags.go
-
-var DefaulModulesCommands []*cli.Command
+// AdditionalFunctionalities is a list of commands that cause the software to behave differently
+var AdditionalFunctionalities = []*cli.Command{}
 
 func init() {
-	DefaulModulesCommands = []*cli.Command{
-		builderApi.NewCommand(),
-		relay.NewCommand(),
-		aggregator.NewCommand(),
-		proxyModule.NewCommand(),
+	DefaultModules = []coreCommon.Service{
+		builderApi.NewBuilderApiService(),
+		relay.NewRelayService(),
+		aggregator.NewBlockAggregatorService(),
+		proxyModule.NewExternalValidatorProxyService(),
 	}
+
+	AdditionalFunctionalities = []*cli.Command{
+		moduleManagement.NewCommand(),
+	}
+
 }

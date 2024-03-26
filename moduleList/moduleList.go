@@ -3,9 +3,9 @@ package modulelist
 import (
 	"github.com/pon-network/mev-plus/common"
 	coreCommon "github.com/pon-network/mev-plus/core/common"
-	"github.com/urfave/cli/v2"
 
 	k2 "github.com/restaking-cloud/native-delegation-for-plus"
+	"github.com/urfave/cli/v2"
 )
 
 var ServiceList []coreCommon.Service
@@ -18,19 +18,12 @@ func init() {
 	// you must import your service and command      //
 	// Import and append your service struct here    //
 	///////////////////////////////////////////////////
-	ServiceList = []coreCommon.Service{
-		k2.NewK2Service(),
-	}
-	///////////////////////////////////////////////////
+	ServiceList = []coreCommon.Service{k2.NewK2Service()}
 
-	///////////////////////////////////////////////////
-	// Import and append your command  here          //
-	///////////////////////////////////////////////////
-	commandList := []*cli.Command{
-		k2.NewCommand(),
+	var commandList []*cli.Command
+	for _, service := range ServiceList {
+		commandList = append(commandList, service.CliCommand())
 	}
-	////////////////////////////////////////////////
-
 	var err error
 	CommandList, err = common.FormatCommands(commandList)
 	if err != nil {

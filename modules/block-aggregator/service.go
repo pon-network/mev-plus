@@ -11,6 +11,7 @@ import (
 	coreCommon "github.com/pon-network/mev-plus/core/common"
 	"github.com/pon-network/mev-plus/modules/block-aggregator/config"
 	"github.com/pon-network/mev-plus/modules/block-aggregator/data"
+	"github.com/urfave/cli/v2"
 
 	commonTypes "github.com/bsn-eng/pon-golang-types/common"
 	params "github.com/ethereum/go-ethereum/params"
@@ -38,6 +39,10 @@ func NewBlockAggregatorService() *BlockAggregatorService {
 		cfg:  config.BlockAggregatorConfigDefaults,
 		ModuleNotificationExclusions: []string{"builderApi", "blockAggregator"},
 	}
+}
+
+func (b *BlockAggregatorService) CliCommand() *cli.Command {
+	return config.NewCommand()
 }
 
 func (b *BlockAggregatorService) Name() string {

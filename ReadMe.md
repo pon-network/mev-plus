@@ -16,9 +16,7 @@
 
 ## Introduction
 
-MEV Plus is a side car ecosystem where consensus layer validators can communicate with outside applications such as PBS, execution layer etc. It can be thought of as the next evolution of validator proxy software introducing exciting on-chain and off-chain possibilities. This open-source solution offers modularity and exceptional scalability to accommodate a wide range of applications where each application is known as a module or plug-in.
-
-MEV-plus's first flagship application enables validators to leverage a marketplace of block builders and relayers. These builders are responsible for crafting blocks that include transaction orderflow, along with a fee for the validator who proposes the block. The separation of roles between proposers and builders fosters healthy competition, decentralization, and enhances censorship resistance within the Ethereum ecosystem. It's a significant step towards a more robust and efficient network.
+MEV Plus is a side car ecosystem where consensus layer validators can communicate with outside applications such as PBS, execution layer etc. It can be thought of as the next evolution of validator proxy software introducing exciting on-chain and off-chain possibilities. This open-source solution offers modularity and exceptional scalability to accommodate a wide range of applications where each application is known as a module or plug-in. MEV-plus's first flagship application (native delegation) enables validators to natively delegate their consensus layer balances to the execution layer. It it one example of the many modules that will be built for MEV Plus. Modules can be built around all kinds of applications including but not limited to PBS etc.
 
 ## Prerequisites
 
@@ -110,9 +108,9 @@ First and foremost, the name of your custom module must adhere to certain naming
 
 When adding a custom module to MEV Plus, you must implement specific components to make it compatible with the system:
 
-- **Command Line Interface (CLI) Commands**: Your module should include CLI commands to manage and control its functionality. These commands allow users to interact with your module seamlessly.
+- **Module Structure**: Your custom module should follow a specific structure that includes essential components such as service functions, configuration settings, and command-line interface (CLI) commands. These components are crucial for the proper functioning of your module within MEV Plus.
 
-- **New Commands and Flags**: You need to provide new commands and flags that are specific to your module's operations. These commands and flags will be used by users to configure and execute actions within your module.
+- **File Organization**: Ensure in the root of your module directory, you have at least one Go file that contains the core logic of your module, this must have a package name that matches your module name. Additionally, ensure the `struct` definition for your module is in the root of your module directory, and all required MEV Plus compatible methods are defined within the same file.
 
 ### Required Service Functions
 
@@ -128,11 +126,51 @@ To ensure that your custom module can be seamlessly integrated into the MEV Plus
 
 - **Configure()**: The Configure function is responsible for setting up your module based on module-specific flags and configurations. It ensures that your module can be customized to suit different use cases and scenarios.
 
+- **CliCommand()**: The CliCommand function defines the CLI commands associated with your module. It allows users to interact with your module via the command line interface, enabling them to configure and control its operations.
+
+### Service Interface
+
+```go
+type Service interface {
+ // Any attached service must implement these method.
+ Name() string
+ Start() error
+ Stop() error
+ ConnectCore(coreClient *coreCommon.Client, pingId string) error
+ Configure(moduleFlags common.ModuleFlags) error
+ CliCommand() *cli.Command // Returns the cli command for the service in order for MEV Plus to parse the flags
+}
+```
+
+where the types above are defined as:
+
+```json
+{
+"common": "github.com/pon-network/mev-plus/common",
+"coreCommon": "github.com/pon-network/mev-plus/core/common",
+"cli": "github.com/urfave/cli/v2",
+}
+```
+
 ### Installing Modules
 
-To install additional modules, import the module into your MEV Plus `moduleList.go` file and instantiate the module **SERVICE** and the module's CLI **COMMAND** functions in the respective service and command lists variables within the [moduleList.go](moduleList/moduleList.go) file.
+To manage custom modules within MEV Plus, you must follow these steps:
 
-Build your modified MEV Plus binary and run it with the required flags.
+- **Add Module**: To install a new module, run the following command: `go run mevPlus.go -install <module-package-url>`. You could also use the alias `-i` instead of `-install`. This would check for and obtain your module securely and deduce its compatibility with MEV Plus, and then install it. If a module is already installed, it would breturn an error unless the version of the module package url is different from the one installed, then it would update (upgrade/downgrade) the module to the specified version.
+
+- **Remove Module**: To remove an existing module, run the following command: `go run mevPlus.go -remove <module-name_or_module-package-url>`. You could also use the alias `-r` instead of `-remove`. This would remove the specified module from MEV Plus. You can specify the module by its name or package URL.
+
+- **List Modules**: To view a list of installed modules, run the following command: `go run mevPlus.go -list`. You could also use the alias `-l` instead of `-list`. This would display all installed modules within MEV Plus.
+
+- **Update Module**: To update an existing module, run the following command: `go run mevPlus.go -update <module-name_or_module-package-url>`. You could also use the alias `-u` instead of `-update`. This would check for and obtain your module securely and deduce its compatibility with MEV Plus, and then update (upgrade/downgrade) it. If the module is not installed, it would return an error. Passing the module name or package URL would update the specified module to the latest version, if a versioned pacakge url is not specified.
+
+### Using Custom Modules
+
+Once you have installed/updated/removed your custom module, you can use it within MEV Plus by following these steps:
+
+Build your modified MEV Plus binary and run it with the required flags, as normal with the module changes you have made. Your custom module should now be integrated into / removed from MEV Plus.
+
+Once your binary is built, you can ensure that your module changes are maintained in your binary by running the command `modules -list` on your built binary to see the list of installed modules. This would show you the list of installed modules and their versions.
 
 By adhering to these guidelines and incorporating these components into your custom module, you can extend MEV Plus's functionality according to your unique requirements while ensuring compatibility and consistency with the overall structure of the platform. This modularity allows developers to tailor MEV Plus to specific use cases, making it a flexible and adaptable solution for various applications.
 

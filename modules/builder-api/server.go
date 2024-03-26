@@ -11,6 +11,7 @@ import (
 	coreCommon "github.com/pon-network/mev-plus/core/common"
 	"github.com/pon-network/mev-plus/modules/builder-api/config"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 )
 
 type BuilderApiService struct {
@@ -28,6 +29,10 @@ func NewBuilderApiService() *BuilderApiService {
 		cfg: config.BuilderApiConfigDefaults,
 	}
 	return b
+}
+
+func (b *BuilderApiService) CliCommand() *cli.Command {
+	return config.NewCommand()
 }
 
 func (b *BuilderApiService) Configure(moduleFlags common.ModuleFlags) (err error) {
@@ -123,7 +128,7 @@ func (b *BuilderApiService) getRouter() http.Handler {
 	return loggedRouter
 }
 
-func (b *BuilderApiService) Start() error {
+func (b *BuilderApiService) Start() (err error) {
 
 	if b.srv != nil {
 		return errServerAlreadyRunning
@@ -141,7 +146,13 @@ func (b *BuilderApiService) Start() error {
 		MaxHeaderBytes: b.cfg.ServerMaxHeaderBytes,
 	}
 
-	go b.srv.ListenAndServe()
+	go func ()  {
+		listenErr := b.srv.ListenAndServe()
+		if listenErr != nil {
+			b.log.WithError(listenErr).Error("Failed to start Builder API server")
+			err = listenErr
+		}
+	} ()
 
 	b.log.WithField("listenAddr", b.cfg.ListenAddress.String()).Info("Started Builder API server")
 

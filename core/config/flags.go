@@ -7,20 +7,7 @@ import (
 	"os/user"
 	"strings"
 
-	// "github.com/pon-network/mev-plus/cmd/utils"
-
 	"github.com/urfave/cli/v2"
-)
-
-var (
-
-// Core Flags
-// PoNEnabled = &cli.BoolFlag{
-// 	Name:     "pon", // test flag for now
-// 	Usage:    "Enable the PoN Relay Connection",
-// 	Category: utils.CoreCategory,
-// }
-
 )
 
 type TextMarshaler interface {

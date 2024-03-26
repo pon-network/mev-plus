@@ -15,6 +15,7 @@ import (
 	"github.com/pon-network/mev-plus/modules/relay/config"
 	"github.com/pon-network/mev-plus/modules/relay/signing"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -63,6 +64,10 @@ func NewRelayService() *RelayService {
 		bids:                make(map[bidRespKey]bidResp),
 		httpClient:          http.Client{Timeout: time.Duration(config.RelayConfigDefaults.RequestTimeoutMs) * time.Millisecond},
 	}
+}
+
+func (r *RelayService) CliCommand() *cli.Command {
+	return config.NewCommand()
 }
 
 func (r *RelayService) Name() string {

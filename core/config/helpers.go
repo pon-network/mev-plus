@@ -12,5 +12,11 @@ func NewApp(usage string) *cli.App {
 	app.Version = version.Info()
 	app.Usage = usage
 	app.Copyright = "Copyright 2023 Blockswap Labs"
+	app.Authors = []*cli.Author{
+		{
+			Name:  "Ronny Panford",
+			Email: "ronnypanford@hotmail.co.uk",
+		},
+	}
 	return app
 }
