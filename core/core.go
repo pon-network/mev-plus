@@ -11,11 +11,6 @@ import (
 	"github.com/pon-network/mev-plus/core/config"
 	moduleList "github.com/pon-network/mev-plus/moduleList"
 
-	blockaggregator "github.com/pon-network/mev-plus/modules/block-aggregator"
-	builderapi "github.com/pon-network/mev-plus/modules/builder-api"
-	proxyModule "github.com/pon-network/mev-plus/modules/external-validator-proxy"
-	"github.com/pon-network/mev-plus/modules/relay"
-
 	cli "github.com/urfave/cli/v2"
 
 	log "github.com/sirupsen/logrus"
@@ -79,13 +74,7 @@ func NewCoreService(ctx *cli.Context) *CoreService {
 
 func (c *CoreService) defaultServices() ([]coreCommon.Service, error) {
 
-	serviceList := []coreCommon.Service{
-
-		builderapi.NewBuilderApiService(),
-		blockaggregator.NewBlockAggregatorService(),
-		relay.NewRelayService(),
-		proxyModule.NewExternalValidatorProxyService(),
-	}
+	serviceList := config.DefaultModules
 
 	return serviceList, nil
 }
@@ -386,4 +375,9 @@ func (c *CoreService) RelayComms() {
 		}
 	}
 
+}
+
+// Get all modules within mevPlus and detrmine if they are in-built or external from the moduleList
+func (c *CoreService) GetModules() []string {
+	return c.moduleRegistry.ModuleNames()
 }

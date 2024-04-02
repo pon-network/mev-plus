@@ -109,7 +109,7 @@ func (c *Callback) call(ctx context.Context, method string, args []reflect.Value
 			const size = 64 << 10
 			buf := make([]byte, size)
 			buf = buf[:runtime.Stack(buf, false)]
-			errRes = &common.InternalServerError{Code: common.RPCInternalErrorCode, Message: "RPC method " + method + " crashed: " + err.(error).Error()}
+			errRes = &common.InternalServerError{Code: common.RPCInternalErrorCode, Message: "RPC method " + method + " crashed: " + err.(error).Error() + "\n" + string(buf)}
 		}
 	}()
 	// Run the callback.

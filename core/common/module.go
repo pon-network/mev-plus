@@ -14,7 +14,6 @@ import (
 var (
 	contextType = reflect.TypeOf((*context.Context)(nil)).Elem()
 	errorType   = reflect.TypeOf((*error)(nil)).Elem()
-	stringType  = reflect.TypeOf("")
 )
 
 type ModuleRegistry struct {
@@ -115,7 +114,7 @@ func (r *ModuleRegistry) StopModuleServices() (stopped []string, err error) {
 
 	for _, moduleName := range knownModules {
 		r.mu.Lock()
-		if r.modules[moduleName].ServiceAlive == false {
+		if !r.modules[moduleName].ServiceAlive {
 			r.mu.Unlock()
 			continue
 		}
@@ -149,7 +148,7 @@ func (r *ModuleRegistry) stopModuleService(moduleName string) error {
 		r.modules[moduleName] = module
 	}()
 
-	if module.ServiceAlive == false {
+	if !module.ServiceAlive {
 		return fmt.Errorf("module %s is not alive", moduleName)
 	}
 

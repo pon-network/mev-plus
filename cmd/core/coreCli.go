@@ -20,24 +20,26 @@ import (
 	cli "github.com/urfave/cli/v2"
 )
 
-var (
-
-	// coreConfig are flags specific to the MEV Plus core and services.
-	mainFlags = []cli.Flag{
-		// coreConfig.PoNEnabled,
-	}
-)
-
 var app = coreConfig.NewApp("the MEV Plus command line interface")
 
 func init() {
 	// Initialize the CLI app and start MEV Plus
-	app.Action = mevPlus
-	app.Copyright = "Copyright 2023 Blockswap Labs"
+	app.Action = mevPlus // this is the default action if no subcommand is specified
+	app.Copyright = "Copyright (c) 2023 Abstract Systems SEZC"
 
+	/**
+	Only allow the core commands to be accessed directly to perform alternative functionality,
+	like mevPlus update, mevPlus install, mevPlus module update, etc.
+	If a command from app.Commands is executed, mevPlus would not start up as normal but instead execute the alternative functionality
+	To run mevPlus as normal, user must not specify any additional functionality when running mevPlus
+	**/
+	app.Commands = coreConfig.AdditionalFunctionalities
+
+	var commands []*cli.Command
 	// Load default module cli commands
-	commands := coreConfig.DefaulModulesCommands
-
+	for _, module := range coreConfig.DefaultModules {
+		commands = append(commands, module.CliCommand())
+	}
 	// Load commands for other modules
 	commands = append(commands, moduleList.CommandList...)
 
@@ -61,10 +63,20 @@ func init() {
 			moduleFlags = append(moduleFlags, flag)
 			app.Metadata["moduleFlags"].(map[string][]cli.Flag)[cmd.Name] = append(app.Metadata["moduleFlags"].(map[string][]cli.Flag)[cmd.Name], flag)
 		}
+
+		// Hide the command from visible list as the module is directly invocable by
+		// flagging the module name
+		cmd.Hidden = true
+		cmd.SkipFlagParsing = true
+
+		// append the module command to the list of commands in the software so if a user
+		// whiches to run help on the module directly, they can do so to only see that
+		// module's specific flags and not all the flags for all the modules
+		app.Commands = append(app.Commands, cmd)
 	}
 
+	// The flags available to in mevPlus for normal operation for all modules
 	app.Flags = Merge(
-		mainFlags,
 		moduleFlags,
 	)
 

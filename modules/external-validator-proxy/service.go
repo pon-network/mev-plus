@@ -36,6 +36,10 @@ func NewExternalValidatorProxyService() *ExternalValidatorProxyService {
 	return p
 }
 
+func (p *ExternalValidatorProxyService) CliCommand() *cli.Command {
+	return config.NewCommand()
+}
+
 func (p *ExternalValidatorProxyService) Configure(moduleFlags common.ModuleFlags) (err error) {
 
 	for flagName, flagValue := range moduleFlags {
@@ -156,8 +160,4 @@ func (p *ExternalValidatorProxyService) Start() error {
 
 func (p *ExternalValidatorProxyService) Stop() error {
 	return nil
-}
-
-func NewCommand() *cli.Command {
-	return config.NewCommand()
 }
