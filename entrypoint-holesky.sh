@@ -26,7 +26,7 @@ case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_HOLESKY" in
 esac
 
 ./mevPlus \
-   -builderApi.listen-address http://mev-plus.dappnode:18551 \
+   -builderApi.listen-address http://0.0.0.0:18551 \
    -k2.eth1-private-key $ETH1_PRIVATE_KEY \
    -k2.beacon-node-url $BEACON_NODE_API \
    -k2.execution-node-url $EXECUTION_LAYER \

@@ -1,6 +1,6 @@
 # Stage 1: Building the application
 # Using the official Golang 1.20 image as the base image for building the app
-FROM golang:1.20 AS builder
+FROM golang:1.22.2 AS builder
 
 # the working directory inside the container
 WORKDIR /app
@@ -30,6 +30,7 @@ WORKDIR /root/
 COPY --from=builder /app/mevPlus .
 COPY --from=builder /app/entrypoint.sh .
 COPY --from=builder /app/setup-wizard.yml .
+COPY --from=builder /app/avatar-default.png .
 
 # Make sure the entrypoint script is executable
 RUN chmod +x ./entrypoint.sh

@@ -1,16 +1,18 @@
 {
   "name": "mev-plus.public.dappnode.eth",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Restaking Cloud side car execution environment",
   "type": "service",
   "author": "Blockswap Labs",
   "upstreamRepo": "pon-network/mev-plus",
+  "upstreamArg": "UPSTREAM_VERSION",
+  "upstreamVersion": "v1.0.0",
   "contributors": ["Pol Lanski", "Luka Gulin", "Marc Font", "Diego", "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)"],
   "categories": ["Developer tools", "Economic incentive"],
   "links": {
     "homepage": "https://restaking.cloud/",
-    "instance": "http://mev-plus.dappnode",
-    "endpoint": "http://mev-plus.dappnode:10000",
+    "instance": "http://mev-plus.public.dappnode",
+    "endpoint": "http://mev-plus.public.dappnode:10000",
     "docs": "https://docs.restaking.cloud/home"
   },
   "license": "MIT",

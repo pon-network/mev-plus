@@ -11,7 +11,7 @@ func NewApp(usage string) *cli.App {
 	app.EnableBashCompletion = true
 	app.Version = version.Info()
 	app.Usage = usage
-	app.Copyright = "Copyright 2023 Blockswap Labs"
+	app.Copyright = "Copyright (c) 2023 Abstract Systems SEZC"
 	app.Authors = []*cli.Author{}
 	return app
 }

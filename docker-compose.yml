@@ -1,17 +1,19 @@
-version: "3.4"
+version: "3.5"
 services:
   mevplus:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        UPSTREAM_VERSION: v1.0.0
     ports:
-      - "10000:10000"
+      - "10000:10000/tcp"
     environment:
-      - EXTERNAL_VALIDATOR_PROXY_ADDRESS=
-      - ETH1_PRIVATE_KEY=
-      - BEACON_NODE_URL=
-      - EXECUTION_NODE_URL=
-      - LOGGER_LEVEL=debug
-      - EXTRA_OPTS=
+      EXTERNAL_VALIDATOR_PROXY_ADDRESS: ""
+      ETH1_PRIVATE_KEY: ""
+      BEACON_NODE_URL: ""
+      EXECUTION_NODE_URL: ""
+      LOGGER_LEVEL: "debug"
+      EXTRA_OPTS: ""
     restart: unless-stopped
-    image: "mevplus.mev-plus.public.dappnode.eth:0.0.1"
+    image: "mevplus.mev-plus.public.dappnode.eth:1.0.0"
